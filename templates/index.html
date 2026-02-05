@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Flask App{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="jumbotron text-center">
+            <h1 class="display-4">Welcome to Flask App</h1>
+            <p class="lead">A simple Flask application with Bootstrap 5</p>
+            <hr class="my-4">
+            <p>This is a basic Flask application demonstrating routing and templating with Bootstrap 5.</p>
+            <a class="btn btn-primary btn-lg" href="/about" role="button">Learn More</a>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Flask Framework</h5>
+                <p class="card-text">A lightweight WSGI web application framework in Python.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Bootstrap 5</h5>
+                <p class="card-text">The world's most popular front-end framework for responsive design.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Jinja2 Templates</h5>
+                <p class="card-text">A modern and designer-friendly templating language for Python.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
