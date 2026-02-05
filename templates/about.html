@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}About - Flask App{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h1 class="mb-4">About This Application</h1>
+        <p class="lead">This is a Python Flask application with Bootstrap 5 integration.</p>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-8">
+        <h2>Features</h2>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">Flask web framework for backend routing</li>
+            <li class="list-group-item">Bootstrap 5 for responsive design</li>
+            <li class="list-group-item">Jinja2 templating engine</li>
+            <li class="list-group-item">Base template with navigation and footer</li>
+            <li class="list-group-item">Default routes (Home and About)</li>
+        </ul>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-light">
+            <div class="card-body">
+                <h5 class="card-title">Technology Stack</h5>
+                <ul class="list-unstyled">
+                    <li>🐍 Python</li>
+                    <li>🌶️ Flask</li>
+                    <li>🎨 Bootstrap 5</li>
+                    <li>📄 Jinja2</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-12">
+        <div class="alert alert-info" role="alert">
+            <h4 class="alert-heading">Getting Started</h4>
+            <p>To run this application, install the dependencies with <code>pip install -r requirements.txt</code> and run <code>python app.py</code>.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
