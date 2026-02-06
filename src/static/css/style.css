@@ -284,6 +284,32 @@ header {
     font-size: 1.5rem;
 }
 
+/* Salary Trends Section */
+.salary-trends-section {
+    padding: 5rem 0;
+}
+
+.salary-trends-section header {
+    margin-bottom: 2rem;
+    text-align: left;
+}
+
+.salary-trends-section .salary-dashboard-header {
+    display: flex;
+    align-items: left;
+    justify-content: left;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.salary-trends-section .feature-icon {
+    margin-bottom: 0;
+}
+
+.salary-trends-section h1 {
+    margin-bottom: 0;
+}
+
 /* Footer */
 footer {
     padding: 3rem 0;

@@ -1,0 +1,166 @@
+<div class="salary-chart-container">
+    <div class="chart-header">
+        <h3>Salary Trends Over Years</h3>
+        <p>Monthly gross salary statistics (in currency units)</p>
+    </div>
+    
+    <div class="chart-controls">
+        <div class="toggle-buttons">
+            <button class="toggle-btn active" data-metric="all">All Metrics</button>
+            <button class="toggle-btn" data-metric="mean">Mean Only</button>
+            <button class="toggle-btn" data-metric="median">Median Only</button>
+            <button class="toggle-btn" data-metric="percentiles">Percentiles Only</button>
+        </div>
+        <div class="year-range">
+            <label for="yearFilter">Filter by Year:</label>
+            <select id="yearFilter">
+                <option value="all">All Years</option>
+                <!-- Will be populated by JavaScript -->
+            </select>
+        </div>
+    </div>
+    
+    <div class="chart-wrapper">
+        <canvas id="salaryChart"></canvas>
+    </div>
+    
+    <div class="chart-footer">
+        <div class="legend">
+            <div class="legend-item">
+                <span class="legend-color" style="background-color: #3a86ff"></span>
+                <span>Monthly Mean</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color" style="background-color: #ff006e"></span>
+                <span>Monthly Median</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color" style="background-color: #8338ec"></span>
+                <span>25th Percentile</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color" style="background-color: #fb5607"></span>
+                <span>75th Percentile</span>
+            </div>
+        </div>
+        <div class="stats-summary">
+            <p>Data Source: Salary Database | Last Updated: <span id="lastUpdated"></span></p>
+        </div>
+    </div>
+</div>
+
+<style>
+.salary-chart-container {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin: 20px 0;
+}
+
+.chart-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.chart-header h3 {
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.chart-header p {
+    color: #666;
+    font-size: 0.9em;
+}
+
+.chart-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.toggle-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.toggle-btn {
+    padding: 8px 16px;
+    border: 1px solid #ddd;
+    background: white;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.toggle-btn.active {
+    background: #3a86ff;
+    color: white;
+    border-color: #3a86ff;
+}
+
+.toggle-btn:hover {
+    background: #f0f0f0;
+}
+
+.toggle-btn.active:hover {
+    background: #2a76ef;
+}
+
+.year-range {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.year-range select {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.chart-wrapper {
+    position: relative;
+    height: 400px;
+    margin: 20px 0;
+}
+
+.chart-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.legend-color {
+    width: 15px;
+    height: 15px;
+    border-radius: 3px;
+    display: inline-block;
+}
+
+.stats-summary {
+    color: #666;
+    font-size: 0.9em;
+}
+</style>
