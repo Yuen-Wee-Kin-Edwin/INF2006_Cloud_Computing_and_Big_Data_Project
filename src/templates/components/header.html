@@ -1,0 +1,23 @@
+<header>
+    <div class="container header-container">
+        <a href="{{ url_for('index') }}" class="logo">
+            <i class="fas fa-chart-line logo-icon"></i>
+            GradAnalytics
+        </a>
+        
+        <button class="mobile-menu-btn" id="mobileMenuBtn">
+            <i class="fas fa-bars"></i>
+        </button>
+        
+        <nav>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="{{ url_for('index') }}#home" class="nav-link">Home</a></li>
+                <li><a href="{{ url_for('index') }}#analytics" class="nav-link">Analytics</a></li>
+                <li><a href="{{ url_for('index') }}#features" class="nav-link">Features</a></li>
+                <li><a href="#" class="nav-link">Universities</a></li>
+                <li><a href="#" class="nav-link">Reports</a></li>
+                <li><a href="#" class="nav-link">Contact</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>

@@ -1,44 +1,140 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GradAnalytics | Singapore Graduate Outcomes</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Header -->
+    {% include 'components/header.html' %}
 
-{% block title %}Home - Flask App{% endblock %}
-
-{% block content %}
-<div class="row">
-    <div class="col-md-12">
-        <div class="jumbotron text-center">
-            <h1 class="display-4">Welcome to Flask App</h1>
-            <p class="lead">A simple Flask application with Bootstrap 5</p>
-            <hr class="my-4">
-            <p>This is a basic Flask application demonstrating routing and templating with Bootstrap 5.</p>
-            <a class="btn btn-primary btn-lg" href="/about" role="button">Learn More</a>
-        </div>
-    </div>
-</div>
-
-<div class="row mt-5">
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Flask Framework</h5>
-                <p class="card-text">A lightweight WSGI web application framework in Python.</p>
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Unlock your future with data-driven insights</h1>
+                <p class="hero-subtitle">Access comprehensive employment statistics from Singapore's top universities. Analyze salary trends, employment rates, and make informed decisions for your education and career.</p>
+                
+                <div class="cta-buttons">
+                    <a href="#graduates" class="btn btn-primary">For Graduates</a>
+                    <a href="#policymakers" class="btn btn-outline">For Policymakers</a>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Bootstrap 5</h5>
-                <p class="card-text">The world's most popular front-end framework for responsive design.</p>
+    </section>
+
+    <!-- Analytics Service Section -->
+    <section class="analytics-service" id="analytics">
+        <div class="container">
+            <span class="section-title">Analytics Service</span>
+            <h2>A comprehensive view of graduate outcomes</h2>
+            <p>Whether you are looking for your first job or shaping the future of education policy, our platform provides the data you need.</p>
+            
+            <div class="service-card">
+                <p>Our platform aggregates data from all six autonomous universities in Singapore, providing insights into employment rates, starting salaries, industry distribution, and skill demand across various degree programs.</p>
             </div>
         </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Jinja2 Templates</h5>
-                <p class="card-text">A modern and designer-friendly templating language for Python.</p>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <h2>Key Analytics Features</h2>
+            <p>Explore our comprehensive data visualization tools and insights</p>
+            
+            <div class="features-grid">
+                <!-- Feature 1: Salary Trends -->
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <h3>Salary Trends</h3>
+                    <p>Visualize how starting salaries have changed over the years across different degree programs. Filter by university, faculty, and graduation year to see detailed trends.</p>
+                    <a href="#salary-trends" class="btn btn-outline" style="margin-top: 1rem;">Explore Trends</a>
+                </div>
+                
+                <!-- Feature 2: University Comparison -->
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-university"></i>
+                    </div>
+                    <h3>University Comparison</h3>
+                    <p>Compare employment outcomes between six autonomous universities in Singapore. Analyze graduate employment rates, median salaries, and industry placement.</p>
+                    <a href="#university-comparison" class="btn btn-outline" style="margin-top: 1rem;">Compare Now</a>
+                </div>
+                
+                <!-- Feature 3: Industry Insights -->
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-industry"></i>
+                    </div>
+                    <h3>Industry Insights</h3>
+                    <p>Discover which industries are hiring graduates from specific programs. Track industry growth patterns and identify emerging sectors with high demand for talent.</p>
+                    <a href="#industry-insights" class="btn btn-outline" style="margin-top: 1rem;">View Insights</a>
+                </div>
             </div>
         </div>
-    </div>
-</div>
-{% endblock %}
+    </section>
+
+    <!-- Footer -->
+    {% include 'components/footer.html' %}
+
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script>
+        // Mobile menu toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const navLinks = document.getElementById('navLinks');
+            
+            if (mobileMenuBtn && navLinks) {
+                mobileMenuBtn.addEventListener('click', () => {
+                    navLinks.classList.toggle('active');
+                    
+                    // Change icon
+                    const icon = mobileMenuBtn.querySelector('i');
+                    if (navLinks.classList.contains('active')) {
+                        icon.classList.remove('fa-bars');
+                        icon.classList.add('fa-times');
+                    } else {
+                        icon.classList.remove('fa-times');
+                        icon.classList.add('fa-bars');
+                    }
+                });
+                
+                // Close mobile menu when clicking a link
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.addEventListener('click', () => {
+                        navLinks.classList.remove('active');
+                        const icon = mobileMenuBtn.querySelector('i');
+                        icon.classList.remove('fa-times');
+                        icon.classList.add('fa-bars');
+                    });
+                });
+            }
+            
+            // Smooth scrolling for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    if(this.getAttribute('href') === '#') return;
+                    
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    
+                    if(targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 80,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
