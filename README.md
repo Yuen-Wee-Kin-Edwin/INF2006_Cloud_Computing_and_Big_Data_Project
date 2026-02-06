@@ -30,5 +30,5 @@ pip install -r requirements.txt
 4. Run the Flask app.
 
 ```bash
-python3 src/app.py
+sudo python3 src/app.py
 ```
