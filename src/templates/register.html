@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+{% include 'components/head.html' %}
+<body>
+     <!-- Header -->
+    {% include 'components/header.html' %}
+<section class="auth-section">
+    <div class="container">
+        <div class="auth-card">
+            <h2>Create an Account</h2>
+            <p>Join our community to access exclusive features.</p>
+            <form action="{{ url_for('register') }}" method="post" class="auth-form">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <div class="form-group">
+                    <label for="confirm-password">Confirm Password</label>
+                    <input type="password" id="confirm-password" name="confirm_password" required>
+                </div>
+                <button type="submit" class="btn btn-primary auth-btn">Register</button>
+            </form>
+            <div class="auth-switch">
+                <p>Already have an account? <a href="{{ url_for('login') }}">Log In</a></p>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

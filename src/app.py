@@ -8,7 +8,8 @@ app = Flask(__name__,
             static_folder='static',
             template_folder='templates')
 
-DATA_FILE='./data/GraduateEmploymentSurveyNTUNUSSITSMUSUSSSUTD.csv'
+df = None
+DATA_FILE = os.path.join(os.path.dirname(__file__), 'data', 'GraduateEmploymentSurveyNTUNUSSITSMUSUSSSUTD.csv')
 if os.path.exists(DATA_FILE):
     df = pd.read_csv(DATA_FILE)
 
@@ -68,11 +69,56 @@ def get_salary_data():
 def salary_data():
     return jsonify(get_salary_data())
 
+@app.route('/api/university-salary-data')
+def university_salary_data():
+    if df is not None:
+        # Ensure 'gross_monthly_median' is numeric, coercing errors
+        df['gross_monthly_median'] = pd.to_numeric(df['gross_monthly_median'], errors='coerce')
+        
+        # Drop rows where median is NaN after coercion
+        df_cleaned = df.dropna(subset=['gross_monthly_median'])
+        
+        # Group by year and university, then calculate the median of the 'gross_monthly_median'
+        uni_salary_data = df_cleaned.groupby(['year', 'university'])['gross_monthly_median'].median().reset_index()
+        
+        return jsonify(uni_salary_data.to_dict(orient='records'))
+    return jsonify([])
+
+@app.route('/api/employment-rate-data')
+def employment_rate_data():
+    if df is not None:
+        # Ensure 'employment_rate_overall' is numeric, coercing errors
+        df['employment_rate_overall'] = pd.to_numeric(df['employment_rate_overall'], errors='coerce')
+        
+        # Drop rows where employment rate is NaN after coercion
+        df_cleaned = df.dropna(subset=['employment_rate_overall'])
+        
+        # Group by year and university, then calculate the mean of the 'employment_rate_overall'
+        employment_data = df_cleaned.groupby(['year', 'university'])['employment_rate_overall'].mean().reset_index()
+        
+        return jsonify(employment_data.to_dict(orient='records'))
+    return jsonify([])
 
 @app.route('/about')
 def about():
     """About page route"""
     return render_template('about.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    """Login page route"""
+    if request.method == 'POST':
+        # Handle login logic here
+        pass
+    return render_template('login.html')
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    """Register page route"""
+    if request.method == 'POST':
+        # Handle registration logic here
+        pass
+    return render_template('register.html')
 
 
 if __name__ == '__main__':

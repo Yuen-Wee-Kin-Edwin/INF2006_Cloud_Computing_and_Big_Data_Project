@@ -60,13 +60,13 @@
                     <a href="#university-comparison" class="btn btn-outline" style="margin-top: 1rem;">Compare Now</a>
                 </div>
                 
-                <!-- Feature 3: Industry Insights -->
+                <!-- Feature 3-->
                 <div class="feature-card">
                     <div class="feature-icon">
                         <i class="fas fa-industry"></i>
                     </div>
-                    <h3>Industry Insights</h3>
-                    <p>Discover which industries are hiring graduates from specific programs. Track industry growth patterns and identify emerging sectors with high demand for talent.</p>
+                    <h3>Employment Trends</h3>
+                    <p>Compare employment rate trends between six autonomous universities in Singapore. Track industry growth patterns and identify emerging sectors with high demand for talent.</p>
                     <a href="#industry-insights" class="btn btn-outline" style="margin-top: 1rem;">View Insights</a>
                 </div>
             </div>
@@ -89,8 +89,43 @@
             <!-- Include the salary chart component -->
             {% include 'components/salary_chart.html' %}
         </div>
+         
     </div>
     </div>
+    </section>
+
+    <section class="university-comparison-section" id="university-comparison">
+        <div class="container">
+            <header>
+                <div class="university-dashboard-header">
+                    <div class="feature-icon">
+                        <i class="fas fa-university logo-icon"></i>
+                    </div>
+                    <h1>University Salary Comparison</h1>
+                </div>
+                <p>Compare median salaries across different universities over the years.</p>
+            </header>
+            <div class="content">
+            {% include 'components/university_chart.html' %}
+            </div>
+        </div>
+    </section>
+
+    <section class="employment-trends-section" id="industry-insights">
+        <div class="container">
+            <header>
+                <div class="dashboard-header">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line logo-icon"></i>
+                    </div>
+                    <h1>Employment Rate Trends</h1>
+                </div>
+                <p>Compare employment rates across different universities over the years.</p>
+            </header>
+            <div class="content">
+                {% include 'components/employment_chart.html' %}
+            </div>
+        </div>
     </section>
 
     <!-- Footer -->
@@ -98,6 +133,8 @@
 
     <!-- JavaScript -->
     <script src="{{ url_for('static', filename='js/salary-chart.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/university-chart.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/employment-chart.js') }}"></script>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
     <script>
         // Mobile menu toggle

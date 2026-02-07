@@ -1,0 +1,90 @@
+<div class="employment-chart-container">
+    <div class="chart-header">
+        <h3>Employment Rate Over Years</h3>
+        <p>Overall employment rate by university</p>
+    </div>
+    
+    <div class="chart-controls">
+        <div class="university-filter">
+            <label for="employmentUniversityFilter">Filter by University:</label>
+            <select id="employmentUniversityFilter">
+                <option value="all">All Universities</option>
+                <!-- Will be populated by JavaScript -->
+            </select>
+        </div>
+    </div>
+    
+    <div class="chart-wrapper">
+        <canvas id="employmentRateChart"></canvas>
+    </div>
+    
+    <div class="chart-footer">
+        <div class="stats-summary">
+            <p>Data Source: Employment Survey Database | Last Updated: <span id="employmentLastUpdated"></span></p>
+        </div>
+    </div>
+</div>
+
+<style>
+.employment-chart-container {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin: 20px 0;
+}
+
+.employment-chart-container .chart-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.employment-chart-container .chart-header h3 {
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.employment-chart-container .chart-header p {
+    color: #666;
+    font-size: 0.9em;
+}
+
+.employment-chart-container .chart-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.employment-chart-container .university-filter {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.employment-chart-container .university-filter select {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.employment-chart-container .chart-wrapper {
+    position: relative;
+    height: 400px;
+    margin: 20px 0;
+}
+
+.employment-chart-container .chart-footer {
+    text-align: center;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.employment-chart-container .stats-summary {
+    color: #666;
+    font-size: 0.9em;
+}
+</style>

@@ -154,6 +154,19 @@ header {
     z-index: 1001;
 }
 
+.profile-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    color: var(--gray);
+    transition: var(--transition);
+}
+
+.profile-icon:hover {
+    color: var(--primary);
+}
+
 /* Hero Section */
 .hero {
     padding: 5rem 0;
@@ -307,6 +320,50 @@ header {
 }
 
 .salary-trends-section h1 {
+    margin-bottom: 0;
+}
+
+/* University Comparison Section */
+.university-comparison-section .university-dashboard-header {
+    display: flex;
+    align-items: left;
+    justify-content: left;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.university-comparison-section header {
+    margin-bottom: 2rem;
+    text-align: left;
+}
+
+.university-comparison-section .feature-icon {
+    margin-bottom: 0;
+}
+
+/* Employment Trends Section */
+.employment-trends-section {
+    padding: 5rem 0;
+}
+
+.employment-trends-section header {
+    margin-bottom: 2rem;
+    text-align: left;
+}
+
+.employment-trends-section .dashboard-header {
+    display: flex;
+    align-items: left;
+    justify-content: left;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.employment-trends-section .feature-icon {
+    margin-bottom: 0;
+}
+
+.employment-trends-section h1 {
     margin-bottom: 0;
 }
 
@@ -466,4 +523,89 @@ footer {
     .feature-card {
         padding: 1.5rem;
     }
+}
+
+/* Auth Pages */
+.auth-section {
+    padding: 5rem 0;
+    background-color: var(--light);
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth-card {
+    background-color: white;
+    padding: 3rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    max-width: 450px;
+    width: 100%;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.auth-card h2 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.auth-card p {
+    color: var(--gray);
+    margin-bottom: 2rem;
+}
+
+.auth-form {
+    text-align: left;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--gray-light);
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    transition: var(--transition);
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+}
+
+.auth-btn {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.1rem;
+    margin-top: 1rem;
+}
+
+.auth-switch {
+    margin-top: 2rem;
+}
+
+.auth-switch p {
+    margin-bottom: 0;
+}
+
+.auth-switch a {
+    color: var(--primary);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.auth-switch a:hover {
+    text-decoration: underline;
 }

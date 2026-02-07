@@ -14,10 +14,13 @@
                 <li><a href="{{ url_for('index') }}#home" class="nav-link">Home</a></li>
                 <li><a href="{{ url_for('index') }}#analytics" class="nav-link">Analytics</a></li>
                 <li><a href="{{ url_for('index') }}#features" class="nav-link">Features</a></li>
-                <li><a href="#" class="nav-link">Universities</a></li>
-                <li><a href="#" class="nav-link">Reports</a></li>
-                <li><a href="#" class="nav-link">Contact</a></li>
+                <!-- <li><a href="#" class="nav-link">Universities</a></li>
+                <li><a href="#" class="nav-link">Reports</a></li> -->
             </ul>
         </nav>
+
+        <a href="{{ url_for('login') }}" class="profile-icon" title="Login">
+            <i class="fas fa-user-circle"></i>
+        </a>
     </div>
 </header>
