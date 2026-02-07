@@ -7,14 +7,31 @@
 
     <!-- Hero Section -->
     <section class="hero" id="home">
+        <canvas id="heroCanvas"></canvas>
         <div class="container">
-            <div class="hero-content">
+            <div class="hero-content" data-aos="fade-right" data-aos-duration="1000">
                 <h1>Unlock your future with data-driven insights</h1>
                 <p class="hero-subtitle">Access comprehensive employment statistics from Singapore's top universities. Analyze salary trends, employment rates, and make informed decisions for your education and career.</p>
                 
                 <div class="cta-buttons">
                     <a href="#graduates" class="btn btn-primary">For Graduates</a>
                     <a href="#policymakers" class="btn btn-outline">For Policymakers</a>
+                </div>
+
+                <!-- Animated Stats -->
+                <div class="hero-stats">
+                    <div class="stat-item" data-aos="fade-up" data-aos-delay="200">
+                        <span class="stat-number" data-target="6">0</span>
+                        <span class="stat-label">Universities</span>
+                    </div>
+                    <div class="stat-item" data-aos="fade-up" data-aos-delay="400">
+                        <span class="stat-number" data-target="50">0</span><span class="stat-plus">+</span>
+                        <span class="stat-label">Degree Programs</span>
+                    </div>
+                    <div class="stat-item" data-aos="fade-up" data-aos-delay="600">
+                        <span class="stat-number" data-target="10">0</span><span class="stat-plus">+</span>
+                        <span class="stat-label">Years of Data</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -23,11 +40,11 @@
     <!-- Analytics Service Section -->
     <section class="analytics-service" id="analytics">
         <div class="container">
-            <span class="section-title">Analytics Service</span>
-            <h2>A comprehensive view of graduate outcomes</h2>
-            <p>Whether you are looking for your first job or shaping the future of education policy, our platform provides the data you need.</p>
+            <span class="section-title" data-aos="fade-up">Analytics Service</span>
+            <h2 data-aos="fade-up" data-aos-delay="100">A comprehensive view of graduate outcomes</h2>
+            <p data-aos="fade-up" data-aos-delay="200">Whether you are looking for your first job or shaping the future of education policy, our platform provides the data you need.</p>
             
-            <div class="service-card">
+            <div class="service-card" data-aos="fade-up" data-aos-delay="300">
                 <p>Our platform aggregates data from all six autonomous universities in Singapore, providing insights into employment rates, starting salaries, industry distribution, and skill demand across various degree programs.</p>
             </div>
         </div>
@@ -36,12 +53,12 @@
     <!-- Features Section -->
     <section class="features" id="features">
         <div class="container">
-            <h2>Key Analytics Features</h2>
-            <p>Explore our comprehensive data visualization tools and insights</p>
+            <h2 data-aos="fade-up">Key Analytics Features</h2>
+            <p data-aos="fade-up" data-aos-delay="100">Explore our comprehensive data visualization tools and insights</p>
             
             <div class="features-grid">
                 <!-- Feature 1: Salary Trends -->
-                <div class="feature-card">
+                <div class="feature-card" data-aos="fade-up" data-aos-delay="100">
                     <div class="feature-icon">
                         <i class="fas fa-chart-bar"></i>
                     </div>
@@ -51,7 +68,7 @@
                 </div>
                 
                 <!-- Feature 2: University Comparison -->
-                <div class="feature-card">
+                <div class="feature-card" data-aos="fade-up" data-aos-delay="250">
                     <div class="feature-icon">
                         <i class="fas fa-university"></i>
                     </div>
@@ -61,7 +78,7 @@
                 </div>
                 
                 <!-- Feature 3-->
-                <div class="feature-card">
+                <div class="feature-card" data-aos="fade-up" data-aos-delay="400">
                     <div class="feature-icon">
                         <i class="fas fa-industry"></i>
                     </div>
@@ -75,7 +92,7 @@
 
     <section class="salary-trends-section" id="salary-trends">
         <div class="container">
-        <header>
+        <header data-aos="fade-up">
             <div class="salary-dashboard-header">
                 <div class="feature-icon">
                     <i class="fas fa-chart-line logo-icon"></i>
@@ -96,7 +113,7 @@
 
     <section class="university-comparison-section" id="university-comparison">
         <div class="container">
-            <header>
+            <header data-aos="fade-up">
                 <div class="university-dashboard-header">
                     <div class="feature-icon">
                         <i class="fas fa-university logo-icon"></i>
@@ -113,7 +130,7 @@
 
     <section class="employment-trends-section" id="industry-insights">
         <div class="container">
-            <header>
+            <header data-aos="fade-up">
                 <div class="dashboard-header">
                     <div class="feature-icon">
                         <i class="fas fa-chart-line logo-icon"></i>
@@ -132,6 +149,7 @@
     {% include 'components/footer.html' %}
 
     <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='js/hero-animation.js') }}"></script>
     <script src="{{ url_for('static', filename='js/salary-chart.js') }}"></script>
     <script src="{{ url_for('static', filename='js/university-chart.js') }}"></script>
     <script src="{{ url_for('static', filename='js/employment-chart.js') }}"></script>

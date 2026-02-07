@@ -17,6 +17,10 @@
     <div class="chart-wrapper">
         <canvas id="universitySalaryChart"></canvas>
     </div>
+
+    <div class="chart-click-hint">
+        <i class="fas fa-mouse-pointer"></i> Click on any university line to explore detailed comparison analytics
+    </div>
     
     <div class="chart-footer">
         <div class="stats-summary">
@@ -86,5 +90,21 @@
 .university-chart-container .stats-summary {
     color: #666;
     font-size: 0.9em;
+}
+
+.university-chart-container .chart-click-hint {
+    text-align: center;
+    color: #3a86ff;
+    font-size: 0.85em;
+    font-weight: 500;
+    margin-top: 8px;
+    opacity: 0.8;
+    transition: opacity 0.3s;
+}
+.university-chart-container .chart-click-hint:hover {
+    opacity: 1;
+}
+.university-chart-container .chart-click-hint i {
+    margin-right: 4px;
 }
 </style>

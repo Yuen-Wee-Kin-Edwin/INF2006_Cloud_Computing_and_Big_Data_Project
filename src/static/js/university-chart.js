@@ -135,6 +135,18 @@ class UniversityChart {
                 interaction: {
                     intersect: false,
                     mode: 'nearest'
+                },
+                onClick: (event, elements) => {
+                    if (elements.length > 0) {
+                        const index = elements[0].datasetIndex;
+                        const label = event.chart.data.datasets[index]?.label;
+                        if (label) {
+                            window.location.href = `/university-details?university=${encodeURIComponent(label)}`;
+                        }
+                    }
+                },
+                onHover: (event, elements) => {
+                    event.chart.canvas.style.cursor = elements.length > 0 ? 'pointer' : 'default';
                 }
             }
         });

@@ -104,6 +104,114 @@ def about():
     """About page route"""
     return render_template('about.html')
 
+@app.route('/salary-details')
+def salary_details():
+    """Salary details analytics page"""
+    return render_template('salary_details.html')
+
+@app.route('/api/salary-details')
+def salary_details_api():
+    """Return per-degree salary data with optional year/university filters"""
+    if df is not None:
+        result = df.copy()
+
+        # Coerce numeric columns
+        numeric_cols = ['gross_monthly_mean', 'gross_monthly_median',
+                        'gross_mthly_25_percentile', 'gross_mthly_75_percentile',
+                        'basic_monthly_mean', 'basic_monthly_median',
+                        'employment_rate_overall', 'employment_rate_ft_perm']
+        for col in numeric_cols:
+            if col in result.columns:
+                result[col] = pd.to_numeric(result[col], errors='coerce')
+
+        # Optional filters
+        year = request.args.get('year')
+        university = request.args.get('university')
+        school = request.args.get('school')
+
+        if year:
+            result = result[result['year'] == int(year)]
+        if university:
+            result = result[result['university'] == university]
+        if school:
+            result = result[result['school'] == school]
+
+        result = result.dropna(subset=['gross_monthly_median'])
+
+        return jsonify({
+            'data': result.to_dict(orient='records'),
+            'years': sorted(df['year'].dropna().unique().tolist()),
+            'universities': sorted(df['university'].dropna().unique().tolist()),
+            'schools': sorted(df['school'].dropna().unique().tolist()),
+        })
+    return jsonify({'data': [], 'years': [], 'universities': [], 'schools': []})
+
+@app.route('/university-details')
+def university_details():
+    """University comparison analytics page"""
+    return render_template('university_details.html')
+
+@app.route('/api/university-details')
+def university_details_api():
+    """Return per-degree data grouped by university with optional filters"""
+    if df is not None:
+        result = df.copy()
+        numeric_cols = ['gross_monthly_mean', 'gross_monthly_median',
+                        'gross_mthly_25_percentile', 'gross_mthly_75_percentile',
+                        'basic_monthly_mean', 'basic_monthly_median',
+                        'employment_rate_overall', 'employment_rate_ft_perm']
+        for col in numeric_cols:
+            if col in result.columns:
+                result[col] = pd.to_numeric(result[col], errors='coerce')
+
+        year = request.args.get('year')
+        university = request.args.get('university')
+        if year:
+            result = result[result['year'] == int(year)]
+        if university:
+            result = result[result['university'] == university]
+
+        result = result.dropna(subset=['gross_monthly_median'])
+
+        return jsonify({
+            'data': result.to_dict(orient='records'),
+            'years': sorted(df['year'].dropna().unique().tolist()),
+            'universities': sorted(df['university'].dropna().unique().tolist()),
+        })
+    return jsonify({'data': [], 'years': [], 'universities': []})
+
+@app.route('/employment-details')
+def employment_details():
+    """Employment analytics page"""
+    return render_template('employment_details.html')
+
+@app.route('/api/employment-details')
+def employment_details_api():
+    """Return employment data with optional filters"""
+    if df is not None:
+        result = df.copy()
+        numeric_cols = ['employment_rate_overall', 'employment_rate_ft_perm',
+                        'gross_monthly_mean', 'gross_monthly_median']
+        for col in numeric_cols:
+            if col in result.columns:
+                result[col] = pd.to_numeric(result[col], errors='coerce')
+
+        year = request.args.get('year')
+        university = request.args.get('university')
+        if year:
+            result = result[result['year'] == int(year)]
+        if university:
+            result = result[result['university'] == university]
+
+        result = result.dropna(subset=['employment_rate_overall'])
+
+        return jsonify({
+            'data': result.to_dict(orient='records'),
+            'years': sorted(df['year'].dropna().unique().tolist()),
+            'universities': sorted(df['university'].dropna().unique().tolist()),
+        })
+    return jsonify({'data': [], 'years': [], 'universities': []})
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     """Login page route"""

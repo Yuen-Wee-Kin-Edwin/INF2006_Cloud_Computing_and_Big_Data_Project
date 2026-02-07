@@ -178,6 +178,19 @@ class SalaryChart {
                 interaction: {
                     intersect: false,
                     mode: 'nearest'
+                },
+                onClick: (event, elements) => {
+                    if (elements.length > 0) {
+                        const index = elements[0].index;
+                        const year = this.filteredData[index]?.year;
+                        if (year) {
+                            window.location.href = `/salary-details?year=${year}`;
+                        }
+                    }
+                },
+                onHover: (event, elements) => {
+                    const canvas = event.chart.canvas;
+                    canvas.style.cursor = elements.length > 0 ? 'pointer' : 'default';
                 }
             }
         });
