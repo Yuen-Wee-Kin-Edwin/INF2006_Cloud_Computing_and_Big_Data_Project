@@ -334,8 +334,9 @@ if __name__ == "__main__":
         # 0. Exit
         # =========================
         elif choice == "0":
-            print("Exiting analytics. Goodbye 👋")
+            print("Exiting analytics. Goodbye.")
             break
 
         else:
             print("Invalid option. Please try again.")
+
