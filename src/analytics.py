@@ -1,5 +1,6 @@
 import psycopg2
 import pandas as pd
+from tabulate import tabulate
 
 # =========================
 # DATABASE CONFIG (LOCAL)
@@ -16,29 +17,25 @@ def get_connection():
     return psycopg2.connect(**DB_CONFIG)
 
 # =========================
-# ANALYTICS FUNCTIONS
-# =========================
-# =========================
-# Salary Statistics Analysis
+# SALARY STATISTICS ANALYSIS
 # =========================
 def salary_statistics(university, degree):
     """
-    Display mean and median salaries for a selected university and degree (programme),
-    including optional gross salary percentiles.
+    Display mean and median salaries over time for a selected university and degree.
     """
     conn = get_connection()
     cur = conn.cursor()
 
     query = """
-        SELECT 
+        SELECT
             year,
-            ROUND(AVG(basic_monthly_mean), 2) AS basic_mean,
-            ROUND(AVG(basic_monthly_median), 2) AS basic_median,
-            ROUND(AVG(gross_mthly_25_percentile), 2) AS gross_25th,
-            ROUND(AVG(gross_mthly_75_percentile), 2) AS gross_75th
+            basic_monthly_mean,
+            basic_monthly_median,
+            gross_mthly_25_percentile,
+            gross_mthly_75_percentile
         FROM graduate_employment
-        WHERE university = %s AND degree = %s
-        GROUP BY year
+        WHERE university = %s
+          AND degree = %s
         ORDER BY year;
     """
 
@@ -47,141 +44,298 @@ def salary_statistics(university, degree):
     cur.close()
     conn.close()
 
-    columns = [
+    df = pd.DataFrame(rows, columns=[
         "Year",
-        "Basic Mean",
-        "Basic Median",
+        "Basic Mean Salary",
+        "Basic Median Salary",
         "Gross 25th Percentile",
         "Gross 75th Percentile"
-    ]
-    df = pd.DataFrame(rows, columns=columns)
+    ])
+
     return df
 
 # =========================
-# Employment Rate Trend Analysis
+# EMPLOYMENT RATE TREND ANALYSIS
 # =========================
-def employment_trend(university=None, degree=None):
+def employment_trend(university=None, degrees=None):
     """
-    Show overall employment rates (and full-time permanent if available)
-    over time, optionally filtered by university and/or degree.
+    Show employment rate trends over time.
     """
     conn = get_connection()
     cur = conn.cursor()
 
     query = """
-        SELECT 
+        SELECT
             year,
-            ROUND(AVG(employment_rate_overall), 2) AS overall_rate,
-            ROUND(AVG(employment_rate_ft_perm), 2) AS ft_perm_rate
+            university,
+            degree,
+            employment_rate_overall,
+            employment_rate_ft_perm
         FROM graduate_employment
-        WHERE (%s IS NULL OR university = %s)
-          AND (%s IS NULL OR degree = %s)
-        GROUP BY year
-        ORDER BY year;
+        WHERE (%s IS NULL OR university = ANY(%s))
+          AND (%s IS NULL OR degree = ANY(%s))
+        ORDER BY year, university, degree;
     """
 
-    cur.execute(query, (university, university, degree, degree))
+    cur.execute(query, (
+        university, university,
+        degrees, degrees
+    ))
+
     rows = cur.fetchall()
     cur.close()
     conn.close()
 
-    columns = [
+    return pd.DataFrame(rows, columns=[
         "Year",
-        "Overall Employment Rate",
-        "Full-Time Permanent Employment Rate"
-    ]
-    df = pd.DataFrame(rows, columns=columns)
-    return df
+        "University",
+        "Degree",
+        "Overall Employment Rate (%)",
+        "Full-Time Permanent Rate (%)"
+    ])
 
 # =========================
-# University Comparison Analysis
+# UNIVERSITY COMPARISON ANALYSIS
 # =========================
-def university_comparison(year, degree):
+def university_comparison(year=None, degrees=None):
     """
-    Compare median salaries and employment rates across universities for a given year and degree.
-    Includes the degree (programme) column in the output.
+    Compare salaries and employment outcomes across universities.
+    Can filter by year and/or degree(s).
     """
     conn = get_connection()
     cur = conn.cursor()
 
     query = """
-        SELECT 
+        SELECT
+            year,
             university,
-            %s AS degree,
-            ROUND(AVG(basic_monthly_median), 2) AS median_salary,
-            ROUND(AVG(employment_rate_overall), 2) AS employment_rate
+            degree,
+            basic_monthly_median,
+            employment_rate_overall
         FROM graduate_employment
-        WHERE year = %s AND degree = %s
-        GROUP BY university
-        ORDER BY median_salary DESC;
+        WHERE (%s IS NULL OR year = %s)
+          AND (%s IS NULL OR degree = ANY(%s))
+        ORDER BY year, degree, basic_monthly_median DESC;
     """
 
-    cur.execute(query, (degree, year, degree))
+    cur.execute(query, (year, year, degrees, degrees))
     rows = cur.fetchall()
     cur.close()
     conn.close()
 
-    columns = [
+    return pd.DataFrame(rows, columns=[
+        "Year",
         "University",
         "Degree",
         "Median Salary",
-        "Employment Rate"
-    ]
-    df = pd.DataFrame(rows, columns=columns)
-    return df
+        "Employment Rate Overall (%)"
+    ])
+
+# =========================
+# HELPER FUNCTIONS
+# =========================
+def resolve_university(keyword):
+    if not keyword or keyword.lower() == "all":
+        return None
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT DISTINCT university
+        FROM graduate_employment
+        WHERE university ILIKE %s
+        ORDER BY university;
+    """, (f"%{keyword}%",))
+
+    results = [row[0] for row in cur.fetchall()]
+
+    cur.close()
+    conn.close()
+
+    return results if results else "NOT_FOUND"
+
+def resolve_degree(keyword):
+    if not keyword or keyword.lower() == "all":
+        return None  # no filter for "all"
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    # First try exact match
+    cur.execute("""
+        SELECT DISTINCT degree
+        FROM graduate_employment
+        WHERE degree = %s
+        ORDER BY degree;
+    """, (keyword,))
+    exact = [row[0] for row in cur.fetchall()]
+    if exact:
+        cur.close()
+        conn.close()
+        return exact
+
+    # If no exact match, try fuzzy match (ILIKE)
+    cur.execute("""
+        SELECT DISTINCT degree
+        FROM graduate_employment
+        WHERE degree ILIKE %s
+        ORDER BY degree;
+    """, (f"%{keyword}%",))
+    fuzzy = [row[0] for row in cur.fetchall()]
+
+    cur.close()
+    conn.close()
+    return fuzzy if fuzzy else "NOT_FOUND"
+
 
 
 # =========================
-# TESTING
+# OUTPUT FORMATTING
 # =========================
+def print_table(df, title=None):
+    if title:
+        print(title)
+    print(tabulate(
+        df,
+        headers="keys",
+        tablefmt="grid",
+        showindex=False,
+        colalign=("center",) * len(df.columns)
+    ))
+
+def print_test_context(analysis_name, params):
+    print("\n" + "=" * 70)
+    print(f"ANALYSIS TYPE : {analysis_name}")
+    print("TEST PARAMETERS:")
+    for k, v in params.items():
+        print(f"  - {k}: {v}")
+    print("=" * 70 + "\n")
+
+# =========================
+# MAIN MENU
+# =========================
+def main_menu():
+    print("\nGRADUATE EMPLOYMENT ANALYTICS")
+    print("1. Salary Statistics Analysis")
+    print("2. Employment Rate Trend Analysis")
+    print("3. University Comparison Analysis")
+    print("0. Exit")
+    return input("\nSelect an option: ").strip()
+
 if __name__ == "__main__":
-    # -------------------------------
-    # Salary Statistics Test
-    # -------------------------------
-    test_university = "Nanyang Technological University" # Hardcoded for testing
-    test_degree = "Accountancy and Business" # Hardcoded for testing
 
-    print("=== Salary Statistics Analysis ===")
-    print(f"Selected University: {test_university}")
-    print(f"Selected Degree (Programme): {test_degree}\n")
+    while True:
+        choice = main_menu()
 
-    salary_df = salary_statistics(test_university, test_degree)
-    if salary_df.empty:
-        print("No data found for the selected university/degree.\n")
-    else:
-        print(salary_df.to_string(index=False))
-    print("\n" + "="*60 + "\n")
+        # =========================
+        # 1. Salary Statistics
+        # =========================
+        if choice == "1":
+            # User must select exactly one university
+            uni_input = input("Enter University name: ").strip()
+            universities = resolve_university(uni_input)
+            if universities == "NOT_FOUND":
+                print("No university matched your keyword.")
+                continue
+            elif len(universities) > 1:
+                print(f"Multiple universities matched. Please type exactly: {', '.join(universities)}")
+                continue
+            university = universities[0]
 
-    # -------------------------------
-    # Employment Trend Test
-    # -------------------------------
-    test_university = "Nanyang Technological University" # Hardcoded for testing
-    test_degree = None  # None means all degrees Hardcoded for testing
+            # User must select exactly one degree
+            deg_input = input("Enter Degree name: ").strip()
+            degrees = resolve_degree(deg_input)
+            if degrees == "NOT_FOUND":
+                print("No degree matched your keyword.")
+                continue
+            elif len(degrees) > 1:
+                print(f"Multiple degrees matched. Please type exactly: {', '.join(degrees)}")
+                continue
+            degree = degrees[0]
 
-    print("=== Employment Rate Trend Analysis ===")
-    print(f"Selected University: {test_university}")
-    print(f"Selected Degree (Programme): {test_degree}\n")
+            print_test_context(
+                "Salary Statistics Analysis",
+                {
+                    "Selected University": university,
+                    "Selected Degree": degree,
+                    "Metrics": "Basic Mean, Basic Median, Gross 25th & 75th Percentile"
+                }
+            )
 
-    emp_df = employment_trend(test_university, test_degree)
-    if emp_df.empty:
-        print("No employment data found for the selected filters.\n")
-    else:
-        print(emp_df.to_string(index=False))
-    print("\n" + "="*60 + "\n")
+            df = salary_statistics(university, degree)
+            if df.empty:
+                print("No data found.\n")
+            else:
+                print_table(df)
 
-    # -------------------------------
-    # University Comparison Test
-    # -------------------------------
-    test_year = 2013 # Hardcoded for testing
-    test_degree = "Accountancy and Business" # Hardcoded for testing
 
-    print("=== University Comparison Analysis ===")
-    print(f"Selected Year: {test_year}")
-    print(f"Selected Degree (Programme): {test_degree}\n")
+        # =========================
+        # 2. Employment Trend Analysis
+        # =========================
+        elif choice == "2":
+            uni_input = input("Enter University keyword (or 'all'): ").strip()
+            deg_input = input("Enter Degree keyword (or 'all'): ").strip()
 
-    uni_comp_df = university_comparison(test_year, test_degree)
-    if uni_comp_df.empty:
-        print("No data found for the selected year/degree.\n")
-    else:
-        print(uni_comp_df.to_string(index=False))
-    print("\n" + "="*60 + "\n")
+            universities = resolve_university(uni_input)
+            degrees = resolve_degree(deg_input)
+
+            if universities == "NOT_FOUND":
+                print("No university matched your keyword.")
+                continue
+
+            if degrees == "NOT_FOUND":
+                print("No degree matched your keyword.")
+                continue
+
+            print_test_context(
+                "Employment Rate Trend Analysis",
+                {
+                    "University Filter": ', '.join(universities) if universities else "ALL",
+                    "Degree Filter": ', '.join(degrees) if degrees else "ALL",
+                }
+            )
+
+            df = employment_trend(universities, degrees)
+            if df.empty:
+                print("No data found.\n")
+            else:
+                print_table(df)
+
+        # =========================
+        # 3. University Comparison Analysis
+        # =========================
+        elif choice == "3":
+            year_input = input("Enter Year (press Enter for all): ").strip()
+            year = int(year_input) if year_input else None
+
+            deg_input = input("Enter Degree keyword (or 'all'): ").strip()
+            degrees = resolve_degree(deg_input)
+            if degrees == "NOT_FOUND":
+                print("No degree matched your keyword.")
+                continue
+
+            print_test_context(
+                "University Comparison Analysis",
+                {
+                    "Year": year or "ALL",
+                    "Degree Filter": ', '.join(degrees) if degrees else "ALL",
+                    "Metrics": "Median Salary & Employment Rate"
+                }
+            )
+
+            df = university_comparison(year, degrees)
+            if df.empty:
+                print("No data found.\n")
+            else:
+                print_table(df)
+
+        # =========================
+        # 0. Exit
+        # =========================
+        elif choice == "0":
+            print("Exiting analytics. Goodbye 👋")
+            break
+
+        else:
+            print("Invalid option. Please try again.")
