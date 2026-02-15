@@ -1,4 +1,5 @@
 import os
+import io
 import pandas as pd
 import numpy as np
 from flask import Flask, render_template, send_from_directory, jsonify, request, session, redirect, url_for, flash
@@ -35,8 +36,12 @@ AWS_REGION = os.getenv("AWS_REGION", "us-east-1")
 def load_csv_from_s3(bucket: str, key: str, region: str = "us-east-1") -> pd.DataFrame:
     s3 = boto3.client("s3", region_name=region)
     obj = s3.get_object(Bucket=bucket, Key=key)
-    csv_content = obj["Body"].read().decode("utf-8")
-    return pd.read_csv(StringIO(csv_content))
+
+    # Read raw bytes directly into pandas
+    return pd.read_csv(
+        io.BytesIO(obj["Body"].read()),
+        encoding="utf-8-sig"   # handles BOM safely
+    )
 
 try:
     print(f"📦 Loading CSV from S3: s3://{S3_BUCKET}/{S3_KEY}")
