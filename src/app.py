@@ -670,59 +670,59 @@ def university_comparison_api():
         print(f"Error in university_comparison_api: {e}")
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/university-details')
-def university_details_api():
-    """
-    Return per-university aggregated data with filters
-    Query params: year, university
-    """
-    conn = get_db_connection()
-    if not conn:
-        return jsonify({'error': 'Database connection failed'}), 500
-    
-    try:
-        cur = conn.cursor(cursor_factory=RealDictCursor)
-        
-        query = """
-            SELECT 
-                year,
-                university,
-                degree,
-                school,
-                employment_rate_overall,
-                employment_rate_ft_perm,
-                gross_monthly_median,
-                gross_monthly_mean
-            FROM graduate
-            WHERE 1=1
-        """
-        params = []
-        
-        year = request.args.get('year')
-        university = request.args.get('university')
-        
-        if year:
-            query += " AND year = %s"
-            params.append(int(year))
-        if university:
-            query += " AND university = %s"
-            params.append(university)
-        
-        query += " ORDER BY university, gross_monthly_median DESC;"
-        
-        cur.execute(query, params)
-        data = cur.fetchall()
-        
-        cur.close()
-        conn.close()
-        
-        return jsonify({
-            'success': True,
-            'data': data,
-            'count': len(data)
-        })
-    except Exception as e:
-        print(f"Error in university_details_api: {e}")
+@app.route('/api/university-details') 
+def university_details_api(): 
+    """ 
+    Return per-university aggregated data with filters 
+    Query params: year, university 
+    """ 
+    conn = get_db_connection() 
+    if not conn: 
+        return jsonify({'error': 'Database connection failed'}), 500 
+     
+    try: 
+        cur = conn.cursor(cursor_factory=RealDictCursor) 
+         
+        query = """ 
+            SELECT  
+                year, 
+                university, 
+                degree, 
+                school, 
+                employment_rate_overall, 
+                employment_rate_ft_perm, 
+                gross_monthly_median, 
+                gross_monthly_mean 
+            FROM graduate 
+            WHERE 1=1 
+        """ 
+        params = [] 
+         
+        year = request.args.get('year') 
+        university = request.args.get('university') 
+         
+        if year: 
+            query += " AND year = %s" 
+            params.append(int(year)) 
+        if university: 
+            query += " AND university = %s" 
+            params.append(university) 
+         
+        query += " ORDER BY university, gross_monthly_median DESC;" 
+         
+        cur.execute(query, params) 
+        data = cur.fetchall() 
+         
+        cur.close() 
+        conn.close() 
+         
+        return jsonify({ 
+            'success': True, 
+            'data': data, 
+            'count': len(data) 
+        }) 
+    except Exception as e: 
+        print(f"Error in university_details_api: {e}") 
         return jsonify({'error': 'Failed to fetch university data'}), 500
 
 # =========================
@@ -769,58 +769,58 @@ def salary_data():
         }
     ])
 
-@app.route('/api/university-salary-data')
-def university_salary_data():
-    """Legacy endpoint - returns aggregated university salary data"""
-    conn = get_db_connection()
-    if not conn:
-        return jsonify([])
-    
-    try:
-        cur = conn.cursor(cursor_factory=RealDictCursor)
-        cur.execute("""
-            SELECT 
-                year,
-                university,
-                AVG(gross_monthly_median) as gross_monthly_median
-            FROM graduate
-            WHERE gross_monthly_median IS NOT NULL
-            GROUP BY year, university
-            ORDER BY year, university;
-        """)
-        data = cur.fetchall()
-        cur.close()
-        conn.close()
-        return jsonify(data)
-    except Exception as e:
-        print(f"Error: {e}")
-        return jsonify([])
-
-@app.route('/api/employment-rate-data')
-def employment_rate_data():
-    """Legacy endpoint - returns aggregated employment rate data"""
-    conn = get_db_connection()
-    if not conn:
-        return jsonify([])
-    
-    try:
-        cur = conn.cursor(cursor_factory=RealDictCursor)
-        cur.execute("""
-            SELECT 
-                year,
-                university,
-                AVG(employment_rate_overall) as employment_rate_overall
-            FROM graduate
-            WHERE employment_rate_overall IS NOT NULL
-            GROUP BY year, university
-            ORDER BY year, university;
-        """)
-        data = cur.fetchall()
-        cur.close()
-        conn.close()
-        return jsonify(data)
-    except Exception as e:
-        print(f"Error: {e}")
+@app.route('/api/university-salary-data') 
+def university_salary_data(): 
+    """Legacy endpoint - returns aggregated university salary data""" 
+    conn = get_db_connection() 
+    if not conn: 
+        return jsonify([]) 
+     
+    try: 
+        cur = conn.cursor(cursor_factory=RealDictCursor) 
+        cur.execute(""" 
+            SELECT  
+                year, 
+                university, 
+                AVG(gross_monthly_median) as gross_monthly_median 
+            FROM graduate 
+            WHERE gross_monthly_median IS NOT NULL 
+            GROUP BY year, university 
+            ORDER BY year, university; 
+        """) 
+        data = cur.fetchall() 
+        cur.close() 
+        conn.close() 
+        return jsonify(data) 
+    except Exception as e: 
+        print(f"Error: {e}") 
+        return jsonify([]) 
+ 
+@app.route('/api/employment-rate-data') 
+def employment_rate_data(): 
+    """Legacy endpoint - returns aggregated employment rate data""" 
+    conn = get_db_connection() 
+    if not conn: 
+        return jsonify([]) 
+     
+    try: 
+        cur = conn.cursor(cursor_factory=RealDictCursor) 
+        cur.execute(""" 
+            SELECT  
+                year, 
+                university, 
+                AVG(employment_rate_overall) as employment_rate_overall 
+            FROM graduate 
+            WHERE employment_rate_overall IS NOT NULL 
+            GROUP BY year, university 
+            ORDER BY year, university; 
+        """) 
+        data = cur.fetchall() 
+        cur.close() 
+        conn.close() 
+        return jsonify(data) 
+    except Exception as e: 
+        print(f"Error: {e}") 
         return jsonify([])
     
 # =========================
