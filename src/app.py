@@ -1,4 +1,5 @@
 import os
+import io
 import pandas as pd
 import numpy as np
 from flask import Flask, render_template, send_from_directory, jsonify, request, session, redirect, url_for, flash
@@ -8,6 +9,9 @@ from psycopg2.extras import RealDictCursor
 import hashlib
 import secrets
 from functools import wraps
+import boto3
+from io import StringIO
+
 
 from preprocessing import load_csv, preprocess_data
 from analytics import salary_statistics, employment_trend, university_comparison, resolve_university, resolve_degree
@@ -20,27 +24,55 @@ app = Flask(__name__,
             template_folder='templates')
 app.secret_key = os.environ.get('SECRET_KEY', secrets.token_hex(32))
 
-# Global dataframe for CSV data
+# =========================
+# LOAD CSV FROM S3
+# =========================
 df = None
-DATA_FILE = os.path.join(os.path.dirname(__file__), 'data', 'GraduateEmploymentSurveyNTUNUSSITSMUSUSSSUTD.csv')
+
+S3_BUCKET = os.getenv("S3_BUCKET", "edwin-daaas-csv")
+S3_KEY = os.getenv("S3_KEY", "GraduateEmploymentSurveyNTUNUSSITSMUSUSSSUTD.csv")
+AWS_REGION = os.getenv("AWS_REGION", "us-east-1")
+
+def load_csv_from_s3(bucket: str, key: str, region: str = "us-east-1") -> pd.DataFrame:
+    s3 = boto3.client("s3", region_name=region)
+    obj = s3.get_object(Bucket=bucket, Key=key)
+
+    # Read raw bytes directly into pandas
+    return pd.read_csv(
+        io.BytesIO(obj["Body"].read()),
+        encoding="utf-8-sig"   # handles BOM safely
+    )
+
+try:
+    print(f"📦 Loading CSV from S3: s3://{S3_BUCKET}/{S3_KEY}")
+    df = load_csv_from_s3(S3_BUCKET, S3_KEY, AWS_REGION)
+    print("✅ CSV loaded from S3 successfully:", df.shape)
+except Exception as e:
+    print("❌ Failed to load CSV from S3:", e)
+    df = None
 
 # =========================
 # DATABASE HELPER FUNCTIONS
 # =========================
 def get_db_connection():
-    """Establish PostgreSQL database connection"""
+    """Establish PostgreSQL database connection using environment variables only"""
     try:
         conn = psycopg2.connect(
-            host=os.environ.get('DB_HOST', 'localhost'),
-            port=int(os.environ.get('DB_PORT', 5433)),
-            dbname=os.environ.get('DB_NAME', 'graduate_employment'),
-            user=os.environ.get('DB_USER', 'postgres'),
-            password=os.environ.get('DB_PASSWORD', 'admin')
+            host=os.environ["DB_HOST"],
+            port=int(os.environ.get("DB_PORT", "5432")),
+            dbname=os.environ["DB_NAME"],
+            user=os.environ["DB_USER"],
+            password=os.environ["DB_PASSWORD"],
+            sslmode="require"
         )
         return conn
+    except KeyError as e:
+        print(f"❌ Missing required environment variable: {e}")
+        return None
     except Exception as e:
         print(f"❌ Database connection failed: {e}")
         return None
+
 
 def hash_password(password, salt=None):
     """Hash password with salt using SHA-256"""
@@ -85,20 +117,6 @@ def index():
     """Homepage"""
     return render_template('index.html')
 
-@app.route('/about')
-def about():
-    """About page route"""
-    return render_template('about.html')
-
-@app.route('/dashboard')
-@login_required
-def dashboard():
-    """Main dashboard page - shows analytics overview"""
-    return render_template('dashboard.html')
-
-# =========================
-# STATIC FILE SERVING
-# =========================
 @app.route('/components/<path:filename>')
 def components(filename):
     return send_from_directory('components', filename)
@@ -1040,18 +1058,21 @@ def insert_sample_users():
 def preview_cleaned_data():
     """Preview cleaned CSV data as HTML table"""
     try:
-        df_raw = load_csv(DATA_FILE)
-        df_clean, _ = preprocess_data(df_raw)
+        if df is None:
+            return "<h3>Error:</h3><pre>CSV not loaded from S3 (df is None)</pre>"
+        df_clean, _ = preprocess_data(df)
         return df_clean.head(50).to_html(classes='table table-striped', index=False)
     except Exception as e:
         return f"<h3>Error:</h3><pre>{e}</pre>"
 
+
 @app.route('/preview-cleaned-json')
 def preview_cleaned_json():
-    """Preview cleaned CSV data as JSON"""
     try:
-        df_raw = load_csv(DATA_FILE)
-        df_clean, _ = preprocess_data(df_raw)
+        if df is None:
+            return jsonify({'error': 'CSV not loaded from S3 (df is None)'}), 500
+
+        df_clean, _ = preprocess_data(df)
         metadata = {
             'columns': df_clean.dtypes.apply(lambda x: str(x)).to_dict(),
             'null_counts': df_clean.isna().sum().to_dict(),
@@ -1061,6 +1082,7 @@ def preview_cleaned_json():
         return jsonify({'metadata': metadata, 'preview': preview_data})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
 
 @app.route('/users')
 def preview_users():
@@ -1138,18 +1160,16 @@ def initialize_app():
         conn.close()
         
         if count == 0:
-            print("[INFO] Graduate table is empty. Loading CSV data...")
-            if os.path.exists(DATA_FILE):
-                try:
-                    df_raw = load_csv(DATA_FILE)
-                    df_clean, _ = preprocess_data(df_raw)
-                    insert_graduate_data(df_clean)
-                    clean_graduate_data()
-                    print("✅ CSV data loaded and cleaned")
-                except Exception as e:
-                    print(f"❌ Error loading CSV: {e}")
+            print("[INFO] Graduate table is empty. Loading CSV data from S3...")
+
+            if df is not None:
+                df_clean, _ = preprocess_data(df)
+                insert_graduate_data(df_clean)
+                clean_graduate_data()
+                print("✅ S3 data loaded into database")
             else:
-                print(f"⚠️  CSV file not found at {DATA_FILE}")
+                print("❌ No CSV data available")
+
         else:
             print(f"[INFO] Graduate table already has {count} rows. Skipping CSV load.")
     
@@ -1170,7 +1190,7 @@ if __name__ == '__main__':
     # Get configuration from environment
     debug_mode = os.environ.get('FLASK_DEBUG', '0') == '1'
     host = os.environ.get('FLASK_HOST', '0.0.0.0')
-    port = int(os.environ.get('FLASK_PORT', 8000))
+    port = int(os.environ.get('FLASK_PORT', 5000))
     
     print(f"\n🚀 Starting Flask server on {host}:{port}")
     print(f"   Debug mode: {debug_mode}")
