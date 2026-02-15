@@ -18,12 +18,12 @@
             <!-- Filters -->
             <div class="filters-bar" data-aos="fade-up" data-aos-delay="100">
                 <div class="filter-group">
-                    <label for="filterYear">Year</label>
-                    <select id="filterYear"><option value="">All Years</option></select>
-                </div>
-                <div class="filter-group">
                     <label for="filterUni">University</label>
                     <select id="filterUni"><option value="">All Universities</option></select>
+                </div>
+                <div class="filter-group">
+                    <label for="filterDegree">Course</label>
+                    <select id="filterDegree"><option value="">All Courses</option></select>
                 </div>
                 <button class="btn btn-primary" id="applyFilters"><i class="fas fa-filter"></i> Apply</button>
                 <button class="btn btn-outline" id="resetFilters"><i class="fas fa-redo"></i> Reset</button>
@@ -64,15 +64,15 @@
             <!-- Charts Row -->
             <div class="charts-row">
                 <div class="details-chart-card" data-aos="fade-up" data-aos-delay="300">
-                    <h3>Overall Employment Rate by University</h3>
+                    <h3>Overall Employment Rate Over Time</h3>
                     <div class="details-chart-wrapper">
-                        <canvas id="empBarChart"></canvas>
+                        <canvas id="empOverallTrendChart"></canvas>
                     </div>
                 </div>
                 <div class="details-chart-card" data-aos="fade-up" data-aos-delay="400">
-                    <h3>Employment Rate Distribution</h3>
+                    <h3>FT Permanent Employment Rate Over Time</h3>
                     <div class="details-chart-wrapper">
-                        <canvas id="empDistChart"></canvas>
+                        <canvas id="empFTPTrendChart"></canvas>
                     </div>
                 </div>
             </div>
@@ -117,18 +117,33 @@
 
         const params = new URLSearchParams(window.location.search);
         const initialUni = params.get('university') || '';
-        const initialYear = params.get('year') || '';
+        const initialDegree = params.get('degree') || '';
 
         let allData = [], currentData = [], sortCol = '', sortAsc = true;
+        let overallChart = null, ftpChart = null;
+        const colors = ['rgba(37,99,235,0.85)','rgba(255,0,110,0.85)','rgba(131,56,236,0.85)','rgba(251,86,7,0.85)','rgba(16,185,129,0.85)','rgba(245,158,11,0.85)','rgba(220,38,38,0.85)','rgba(59,130,246,0.85)'];
+        const bgColors = ['rgba(37,99,235,0.1)','rgba(255,0,110,0.1)','rgba(131,56,236,0.1)','rgba(251,86,7,0.1)','rgba(16,185,129,0.1)','rgba(245,158,11,0.1)','rgba(220,38,38,0.1)','rgba(59,130,246,0.1)'];
 
         const res = await fetch('/api/employment-details');
         const json = await res.json();
-        allData = json.data;
-        populateSelect('filterYear', json.years);
-        populateSelect('filterUni', json.universities);
+        allData = json.data || [];
+        const years = json.years || [...new Set(allData.map(r => r.year).filter(Boolean))].sort();
+        const universities = json.universities || [...new Set(allData.map(r => r.university).filter(Boolean))].sort();
+        const allDegrees = json.degrees || [...new Set(allData.map(r => r.degree).filter(Boolean))].sort();
+
+        populateSelect('filterUni', universities);
+        populateSelect('filterDegree', allDegrees);
 
         if (initialUni) document.getElementById('filterUni').value = initialUni;
-        if (initialYear) document.getElementById('filterYear').value = initialYear;
+        if (initialDegree) document.getElementById('filterDegree').value = initialDegree;
+
+        // When university changes, update the degree dropdown to show only relevant degrees
+        document.getElementById('filterUni').addEventListener('change', () => {
+            updateDegreeOptions();
+            applyFilters();
+        });
+
+        updateDegreeOptions();
         applyFilters();
 
         function populateSelect(id, items) {
@@ -136,22 +151,38 @@
             items.forEach(v => { const o = document.createElement('option'); o.value = v; o.textContent = v; sel.appendChild(o); });
         }
 
-        function applyFilters() {
-            const year = document.getElementById('filterYear').value;
+        function updateDegreeOptions() {
             const uni = document.getElementById('filterUni').value;
+            const degreeSel = document.getElementById('filterDegree');
+            const currentDegree = degreeSel.value;
+            // Clear all options except the first
+            degreeSel.innerHTML = '<option value="">All Courses</option>';
+            const filtered = uni ? allData.filter(r => r.university === uni) : allData;
+            const degrees = [...new Set(filtered.map(r => r.degree).filter(Boolean))].sort();
+            degrees.forEach(v => { const o = document.createElement('option'); o.value = v; o.textContent = v; degreeSel.appendChild(o); });
+            // Restore selection if still valid
+            if (degrees.includes(currentDegree)) degreeSel.value = currentDegree;
+            else degreeSel.value = '';
+        }
+
+        function applyFilters() {
+            const uni = document.getElementById('filterUni').value;
+            const degree = document.getElementById('filterDegree').value;
             currentData = allData.filter(r =>
-                (!year || r.year == year) && (!uni || r.university === uni)
+                (!uni || r.university === uni) && (!degree || r.degree === degree)
             );
             updateSummary();
-            renderBarChart();
-            renderDistChart();
+            renderOverallTrendChart();
+            renderFTPTrendChart();
             renderTable();
         }
 
         document.getElementById('applyFilters').addEventListener('click', applyFilters);
+        document.getElementById('filterDegree').addEventListener('change', applyFilters);
         document.getElementById('resetFilters').addEventListener('click', () => {
-            document.getElementById('filterYear').value = '';
             document.getElementById('filterUni').value = '';
+            updateDegreeOptions();
+            document.getElementById('filterDegree').value = '';
             document.getElementById('tableSearch').value = '';
             applyFilters();
         });
@@ -168,56 +199,95 @@
             document.getElementById('summaryFTPerm').textContent = ftPerm ? `${ftPerm.toFixed(1)}%` : '—';
             document.getElementById('summaryPrograms').textContent = new Set(currentData.map(r => r.degree)).size;
 
-            // Top university by employment rate
             const unis = [...new Set(currentData.map(r => r.university))];
             let topUni = '—', topVal = 0;
             unis.forEach(u => {
                 const e = avg(currentData.filter(r => r.university === u), 'employment_rate_overall');
                 if (e && e > topVal) { topVal = e; topUni = u; }
             });
-            // Shorten the university name for the card
             const shortNames = { 'Nanyang Technological University': 'NTU', 'National University of Singapore': 'NUS', 'Singapore Institute of Technology': 'SIT', 'Singapore Management University': 'SMU', 'Singapore University of Social Sciences': 'SUSS', 'Singapore University of Technology and Design': 'SUTD' };
             document.getElementById('summaryTopUni').textContent = shortNames[topUni] || topUni;
         }
 
-        const colors = ['rgba(37,99,235,0.75)','rgba(255,0,110,0.75)','rgba(131,56,236,0.75)','rgba(251,86,7,0.75)','rgba(16,185,129,0.75)','rgba(245,158,11,0.75)'];
+        // Build grouped time-series datasets. Group by university if no specific course selected, else by course.
+        function buildTrendData(rateKey) {
+            const uni = document.getElementById('filterUni').value;
+            const degree = document.getElementById('filterDegree').value;
 
-        let barChart = null;
-        function renderBarChart() {
-            const grouped = {};
-            currentData.forEach(r => { if (!grouped[r.university]) grouped[r.university] = []; if (r.employment_rate_overall != null) grouped[r.university].push(r.employment_rate_overall); });
-            const labels = Object.keys(grouped).sort();
-            const rates = labels.map(u => { const v = grouped[u]; return v.length ? v.reduce((a,b)=>a+b,0)/v.length : 0; });
-            const ctx = document.getElementById('empBarChart').getContext('2d');
-            if (barChart) barChart.destroy();
-            barChart = new Chart(ctx, {
-                type: 'bar',
-                data: { labels, datasets: [{ label: 'Avg Employment Rate', data: rates, backgroundColor: labels.map((_,i) => colors[i % colors.length]), borderRadius: 6, borderSkipped: false }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.parsed.y.toFixed(1) + '%' } } }, scales: { y: { beginAtZero: false, title: { display: true, text: 'Employment Rate (%)' }, ticks: { callback: v => v.toFixed(0)+'%' } } } }
+            // Determine grouping label
+            let groupKey;
+            if (degree) {
+                // Specific course: group by university (or just one line if uni is also set)
+                groupKey = uni ? null : 'university';
+            } else {
+                // No specific course: group by university
+                groupKey = 'university';
+            }
+
+            const allYears = [...new Set(currentData.map(r => r.year))].sort((a,b) => a - b);
+            const labels = allYears.map(String);
+
+            if (!groupKey && uni && degree) {
+                // Single line: specific university + course
+                const vals = allYears.map(y => {
+                    const rows = currentData.filter(r => r.year == y);
+                    const v = rows.map(r => r[rateKey]).filter(v => v != null && !isNaN(v));
+                    return v.length ? v.reduce((a,b)=>a+b,0)/v.length : null;
+                });
+                return { labels, datasets: [{ label: `${degree}`, data: vals, borderColor: colors[0], backgroundColor: bgColors[0], fill: true, tension: 0.3, pointRadius: 4, pointHoverRadius: 6 }] };
+            }
+
+            // Group by university
+            const groups = [...new Set(currentData.map(r => r[groupKey]))].sort();
+            const shortNames = { 'Nanyang Technological University': 'NTU', 'National University of Singapore': 'NUS', 'Singapore Institute of Technology': 'SIT', 'Singapore Management University': 'SMU', 'Singapore University of Social Sciences': 'SUSS', 'Singapore University of Technology and Design': 'SUTD' };
+            const datasets = groups.map((g, i) => {
+                const vals = allYears.map(y => {
+                    const rows = currentData.filter(r => r[groupKey] === g && r.year == y);
+                    const v = rows.map(r => r[rateKey]).filter(v => v != null && !isNaN(v));
+                    return v.length ? v.reduce((a,b)=>a+b,0)/v.length : null;
+                });
+                return {
+                    label: shortNames[g] || g,
+                    data: vals,
+                    borderColor: colors[i % colors.length],
+                    backgroundColor: bgColors[i % bgColors.length],
+                    fill: false,
+                    tension: 0.3,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                };
             });
+            return { labels, datasets };
         }
 
-        // Histogram-style distribution chart
-        let distChart = null;
-        function renderDistChart() {
-            const rates = currentData.map(r => r.employment_rate_overall).filter(v => v != null && !isNaN(v));
-            const buckets = ['< 70%', '70-80%', '80-85%', '85-90%', '90-95%', '95-100%'];
-            const counts = [0,0,0,0,0,0];
-            rates.forEach(r => {
-                if (r < 70) counts[0]++;
-                else if (r < 80) counts[1]++;
-                else if (r < 85) counts[2]++;
-                else if (r < 90) counts[3]++;
-                else if (r < 95) counts[4]++;
-                else counts[5]++;
-            });
-            const ctx = document.getElementById('empDistChart').getContext('2d');
-            if (distChart) distChart.destroy();
-            distChart = new Chart(ctx, {
-                type: 'bar',
-                data: { labels: buckets, datasets: [{ label: 'Number of Programs', data: counts, backgroundColor: 'rgba(37,99,235,0.6)', borderRadius: 6, borderSkipped: false }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.parsed.y + ' programs' } } }, scales: { y: { beginAtZero: true, title: { display: true, text: 'Number of Programs' }, ticks: { stepSize: 1 } }, x: { title: { display: true, text: 'Employment Rate Range' } } } }
-            });
+        function lineChartOpts(title) {
+            return {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: true, position: 'bottom', labels: { usePointStyle: true, padding: 16 } },
+                    tooltip: { callbacks: { label: c => `${c.dataset.label}: ${c.parsed.y != null ? c.parsed.y.toFixed(1) + '%' : 'N/A'}` } }
+                },
+                scales: {
+                    y: { beginAtZero: false, min: 50, max: 100, title: { display: true, text: title }, ticks: { callback: v => v + '%' } },
+                    x: { title: { display: true, text: 'Year' } }
+                },
+                interaction: { mode: 'index', intersect: false }
+            };
+        }
+
+        function renderOverallTrendChart() {
+            const ctx = document.getElementById('empOverallTrendChart').getContext('2d');
+            if (overallChart) overallChart.destroy();
+            const trendData = buildTrendData('employment_rate_overall');
+            overallChart = new Chart(ctx, { type: 'line', data: trendData, options: lineChartOpts('Overall Employment Rate (%)') });
+        }
+
+        function renderFTPTrendChart() {
+            const ctx = document.getElementById('empFTPTrendChart').getContext('2d');
+            if (ftpChart) ftpChart.destroy();
+            const trendData = buildTrendData('employment_rate_ft_perm');
+            ftpChart = new Chart(ctx, { type: 'line', data: trendData, options: lineChartOpts('FT Permanent Rate (%)') });
         }
 
         function renderTable() {
