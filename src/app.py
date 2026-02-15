@@ -1082,18 +1082,16 @@ def initialize_app():
         conn.close()
         
         if count == 0:
-            print("[INFO] Graduate table is empty. Loading CSV data...")
-            if os.path.exists(DATA_FILE):
-                try:
-                    df_raw = load_csv(DATA_FILE)
-                    df_clean, _ = preprocess_data(df_raw)
-                    insert_graduate_data(df_clean)
-                    clean_graduate_data()
-                    print("✅ CSV data loaded and cleaned")
-                except Exception as e:
-                    print(f"❌ Error loading CSV: {e}")
+            print("[INFO] Graduate table is empty. Loading CSV data from S3...")
+
+            if df is not None:
+                df_clean, _ = preprocess_data(df)
+                insert_graduate_data(df_clean)
+                clean_graduate_data()
+                print("✅ S3 data loaded into database")
             else:
-                print(f"⚠️  CSV file not found at {DATA_FILE}")
+                print("❌ No CSV data available")
+
         else:
             print(f"[INFO] Graduate table already has {count} rows. Skipping CSV load.")
     
