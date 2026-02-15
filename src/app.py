@@ -118,7 +118,6 @@ def about():
     return render_template('about.html')
 
 @app.route('/dashboard')
-@login_required
 def dashboard():
     """Main dashboard page - shows analytics overview"""
     return render_template('dashboard.html')
@@ -250,19 +249,16 @@ def logout():
 # ANALYTICS PAGES
 # =========================
 @app.route('/salary-details')
-@login_required
 def salary_details():
     """Salary details analytics page"""
     return render_template('salary_details.html')
 
 @app.route('/university-details')
-@login_required
 def university_details():
     """University comparison analytics page"""
     return render_template('university_details.html')
 
 @app.route('/employment-details')
-@login_required
 def employment_details():
     """Employment analytics page"""
     return render_template('employment_details.html')
