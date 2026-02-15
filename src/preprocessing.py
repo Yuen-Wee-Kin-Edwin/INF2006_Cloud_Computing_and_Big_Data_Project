@@ -6,14 +6,25 @@ import re
 # =========================
 # DATABASE CONFIG (LOCAL)
 # =========================
-def get_connection():
-    return psycopg2.connect(
-        host=os.environ.get("DB_HOST", "localhost"),
-        port=int(os.environ.get("DB_PORT", "5432")),
-        dbname=os.environ.get("DB_NAME", "graduate_employment"),
-        user=os.environ.get("DB_USER", "postgres"),
-        password=os.environ.get("DB_PASSWORD", "admin"),
-    )
+def get_db_connection():
+    """Establish PostgreSQL database connection using environment variables only"""
+    try:
+        conn = psycopg2.connect(
+            host=os.environ["DB_HOST"],
+            port=int(os.environ.get("DB_PORT", "5432")),
+            dbname=os.environ["DB_NAME"],
+            user=os.environ["DB_USER"],
+            password=os.environ["DB_PASSWORD"],
+            sslmode="require"
+        )
+        return conn
+    except KeyError as e:
+        print(f"❌ Missing required environment variable: {e}")
+        return None
+    except Exception as e:
+        print(f"❌ Database connection failed: {e}")
+        return None
+
 
 CSV_PATH = "GraduateEmploymentSurveyNTUNUSSITSMUSUSSSUTD.csv"
 
