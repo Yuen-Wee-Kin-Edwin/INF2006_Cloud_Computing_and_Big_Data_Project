@@ -986,20 +986,22 @@ def insert_sample_users():
 # =========================
 @app.route('/preview-cleaned-data')
 def preview_cleaned_data():
-    """Preview cleaned CSV data as HTML table"""
     try:
-        df_raw = load_csv(DATA_FILE)
-        df_clean, _ = preprocess_data(df_raw)
+        if df is None:
+            return "<h3>Error:</h3><pre>CSV not loaded from S3 (df is None)</pre>"
+        df_clean, _ = preprocess_data(df)
         return df_clean.head(50).to_html(classes='table table-striped', index=False)
     except Exception as e:
         return f"<h3>Error:</h3><pre>{e}</pre>"
 
+
 @app.route('/preview-cleaned-json')
 def preview_cleaned_json():
-    """Preview cleaned CSV data as JSON"""
     try:
-        df_raw = load_csv(DATA_FILE)
-        df_clean, _ = preprocess_data(df_raw)
+        if df is None:
+            return jsonify({'error': 'CSV not loaded from S3 (df is None)'}), 500
+
+        df_clean, _ = preprocess_data(df)
         metadata = {
             'columns': df_clean.dtypes.apply(lambda x: str(x)).to_dict(),
             'null_counts': df_clean.isna().sum().to_dict(),
@@ -1009,6 +1011,7 @@ def preview_cleaned_json():
         return jsonify({'metadata': metadata, 'preview': preview_data})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
 
 @app.route('/users')
 def preview_users():
