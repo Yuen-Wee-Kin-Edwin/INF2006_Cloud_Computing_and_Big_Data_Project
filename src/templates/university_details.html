@@ -18,15 +18,29 @@
             <!-- Filters -->
             <div class="filters-bar" data-aos="fade-up" data-aos-delay="100">
                 <div class="filter-group">
-                    <label for="filterYear">Year</label>
-                    <select id="filterYear"><option value="">All Years</option></select>
-                </div>
-                <div class="filter-group">
                     <label for="filterUni">University</label>
                     <select id="filterUni"><option value="">All Universities</option></select>
                 </div>
+                <div class="filter-group">
+                    <label for="filterSchool">School</label>
+                    <select id="filterSchool"><option value="">All Schools</option></select>
+                </div>
+                <div class="filter-group">
+                    <label for="filterDegree">Degree</label>
+                    <select id="filterDegree"><option value="">All Degrees</option></select>
+                </div>
+                <div class="filter-group">
+                    <label for="filterYear">Year</label>
+                    <select id="filterYear"><option value="">All Years</option></select>
+                </div>
                 <button class="btn btn-primary" id="applyFilters"><i class="fas fa-filter"></i> Apply</button>
                 <button class="btn btn-outline" id="resetFilters"><i class="fas fa-redo"></i> Reset</button>
+            </div>
+
+            <!-- Active Filters -->
+            <div class="active-filters" id="activeFilters" style="display:none;" data-aos="fade-up" data-aos-delay="120">
+                <span class="active-filters-label"><i class="fas fa-filter"></i> Active:</span>
+                <div class="filter-pills" id="filterPills"></div>
             </div>
 
             <!-- Summary Cards -->
@@ -61,29 +75,82 @@
                 </div>
             </div>
 
-            <!-- Charts Row -->
-            <div class="charts-row">
-                <div class="details-chart-card" data-aos="fade-up" data-aos-delay="300">
-                    <h3>Median Salary by University</h3>
+            <!-- Median Salary Trend Chart -->
+            <div class="details-chart-card salary-trend-container" data-aos="fade-up" data-aos-delay="300">
+                <div class="chart-card-header">
+                    <div>
+                        <h3><i class="fas fa-chart-line" style="color:var(--primary);margin-right:8px;"></i>Median Salary Trend</h3>
+                        <p class="chart-subtitle">Median gross monthly salary over the years, grouped dynamically</p>
+                    </div>
+                    <div class="chart-card-controls">
+                        <label for="salaryGroupBy">Group by:</label>
+                        <select id="salaryGroupBy">
+                            <option value="auto">Auto</option>
+                            <option value="university">University</option>
+                            <option value="school">School</option>
+                            <option value="degree">Degree</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="details-chart-wrapper" style="height:400px;">
+                    <div class="chart-loading" id="salaryChartLoading"><i class="fas fa-spinner fa-spin"></i> Loading chart…</div>
+                    <canvas id="salaryTrendChart"></canvas>
+                </div>
+                <div class="chart-click-hint">
+                    <i class="fas fa-mouse-pointer"></i> Click on a data point to explore that group in detail
+                </div>
+                <div class="chart-card-footer">
+                    <p>Data Source: Graduate Employment Survey | Lines grouped by: <strong id="salaryGroupLabel">University</strong></p>
+                </div>
+            </div>
+
+            <!-- Employment Trend Chart -->
+            <div class="details-chart-card" data-aos="fade-up" data-aos-delay="350">
+                <div class="chart-card-header">
+                    <div>
+                        <h3><i class="fas fa-briefcase" style="color:var(--primary);margin-right:8px;"></i>Employment Rate Trend</h3>
+                        <p class="chart-subtitle">Overall employment rate over the years</p>
+                    </div>
+                </div>
+                <div class="details-chart-wrapper">
+                    <div class="chart-loading" id="empChartLoading"><i class="fas fa-spinner fa-spin"></i> Loading chart…</div>
+                    <canvas id="empTrendChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Bar Charts Row -->
+            <div class="charts-row" data-aos="fade-up" data-aos-delay="400">
+                <div class="details-chart-card">
+                    <h3><i class="fas fa-chart-bar" style="color:var(--primary);margin-right:8px;"></i>Avg Median Salary by University</h3>
                     <div class="details-chart-wrapper">
+                        <div class="chart-loading" id="barChartLoading"><i class="fas fa-spinner fa-spin"></i> Loading…</div>
                         <canvas id="uniBarChart"></canvas>
                     </div>
                 </div>
-                <div class="details-chart-card" data-aos="fade-up" data-aos-delay="400">
-                    <h3>Employment Rate by University</h3>
+                <div class="details-chart-card">
+                    <h3><i class="fas fa-chart-bar" style="color:#10b981;margin-right:8px;"></i>Avg Employment Rate by University</h3>
                     <div class="details-chart-wrapper">
+                        <div class="chart-loading" id="empBarChartLoading"><i class="fas fa-spinner fa-spin"></i> Loading…</div>
                         <canvas id="uniEmpChart"></canvas>
                     </div>
                 </div>
             </div>
 
             <!-- Data Table -->
-            <div class="details-table-card" data-aos="fade-up" data-aos-delay="500">
+            <div class="details-table-card" data-aos="fade-up" data-aos-delay="450">
                 <div class="table-header-row">
-                    <h3>Degree Program Details</h3>
-                    <div class="table-search">
-                        <i class="fas fa-search"></i>
-                        <input type="text" id="tableSearch" placeholder="Search degrees…">
+                    <h3><i class="fas fa-table" style="color:var(--primary);margin-right:8px;"></i>Detailed Records</h3>
+                    <div class="table-controls">
+                        <div class="table-search">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="tableSearch" placeholder="Search records...">
+                        </div>
+                        <select id="tablePageSize" class="page-size-select">
+                            <option value="15">15 rows</option>
+                            <option value="25" selected>25 rows</option>
+                            <option value="50">50 rows</option>
+                            <option value="100">100 rows</option>
+                        </select>
                     </div>
                 </div>
                 <div class="table-responsive">
@@ -104,6 +171,7 @@
                 </div>
                 <div class="table-footer">
                     <span id="tableCount">0 records</span>
+                    <div class="pagination" id="pagination"></div>
                 </div>
             </div>
         </div>
@@ -113,131 +181,477 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', async () => {
+        /* ══════════════════════ Init ══════════════════════ */
         if (typeof AOS !== 'undefined') AOS.init({ duration: 800, once: true, offset: 60 });
 
-        const params = new URLSearchParams(window.location.search);
-        const initialUni = params.get('university') || '';
-        const initialYear = params.get('year') || '';
+        const qs = new URLSearchParams(window.location.search);
+        const initialUni  = qs.get('university') || '';
+        const initialYear = qs.get('year') || '';
 
         let allData = [], currentData = [], sortCol = '', sortAsc = true;
+        let allYears = [], allUniversities = [], allSchools = [], allDegrees = [];
+        let salaryTrendChart = null, empTrendChart = null, barChart = null, empChart = null;
+        let currentPage = 1, pageSize = 25;
 
-        const res = await fetch('/api/university-details');
-        const json = await res.json();
-        allData = json.data;
-        populateSelect('filterYear', json.years);
-        populateSelect('filterUni', json.universities);
+        const colors = ['rgba(37,99,235,0.85)','rgba(255,0,110,0.85)','rgba(131,56,236,0.85)','rgba(251,86,7,0.85)','rgba(16,185,129,0.85)','rgba(245,158,11,0.85)','rgba(220,38,38,0.85)','rgba(5,150,105,0.85)'];
+        const borderColors = ['#2563eb','#ff006e','#8338ec','#fb5607','#10b981','#f59e0b','#dc2626','#059669'];
 
-        if (initialUni) document.getElementById('filterUni').value = initialUni;
-        if (initialYear) document.getElementById('filterYear').value = initialYear;
+        function $(id) { return document.getElementById(id); }
+        function showLoading(id, show) { const el = $(id); if (el) el.style.display = show ? 'flex' : 'none'; }
+
+        /* ═══════════════ Initial data fetch ═══════════════ */
+        showLoading('salaryChartLoading', true);
+        showLoading('empChartLoading', true);
+        showLoading('barChartLoading', true);
+        showLoading('empBarChartLoading', true);
+
+        try {
+            const res = await fetch('/api/university-details');
+            const json = await res.json();
+            allData         = json.data         || [];
+            allYears        = json.years        || [];
+            allUniversities = json.universities || [];
+            allSchools      = json.schools      || [];
+            allDegrees      = json.degrees      || [];
+        } catch (e) {
+            console.error('Failed to load university data:', e);
+        }
+
+        populateSelect('filterYear', allYears);
+        populateSelect('filterUni', allUniversities);
+        populateSelect('filterSchool', allSchools);
+        populateSelect('filterDegree', allDegrees);
+
+        if (initialUni)  $('filterUni').value  = initialUni;
+        if (initialYear) $('filterYear').value = initialYear;
+
         applyFilters();
 
+        showLoading('salaryChartLoading', false);
+        showLoading('empChartLoading', false);
+        showLoading('barChartLoading', false);
+        showLoading('empBarChartLoading', false);
+
+        /* ═══════════════ Helpers ═══════════════ */
         function populateSelect(id, items) {
-            const sel = document.getElementById(id);
+            const sel = $(id);
             items.forEach(v => { const o = document.createElement('option'); o.value = v; o.textContent = v; sel.appendChild(o); });
         }
 
-        function applyFilters() {
-            const year = document.getElementById('filterYear').value;
-            const uni = document.getElementById('filterUni').value;
-            currentData = allData.filter(r =>
-                (!year || r.year == year) && (!uni || r.university === uni)
-            );
-            updateSummary();
-            renderBarChart();
-            renderEmpChart();
-            renderTable();
+        function resetSelect(id, placeholder, items) {
+            const sel = $(id);
+            const prev = sel.value;
+            sel.innerHTML = `<option value="">${placeholder}</option>`;
+            items.forEach(v => { const o = document.createElement('option'); o.value = v; o.textContent = v; sel.appendChild(o); });
+            if (items.includes(prev)) sel.value = prev;
         }
-
-        document.getElementById('applyFilters').addEventListener('click', applyFilters);
-        document.getElementById('resetFilters').addEventListener('click', () => {
-            document.getElementById('filterYear').value = '';
-            document.getElementById('filterUni').value = '';
-            document.getElementById('tableSearch').value = '';
-            applyFilters();
-        });
 
         function avg(arr, key) {
             const vals = arr.map(r => r[key]).filter(v => v != null && !isNaN(v));
-            return vals.length ? vals.reduce((a,b) => a+b, 0) / vals.length : null;
+            return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
         }
 
+        function fmt(v) { return v != null && !isNaN(v) ? '$' + Math.round(Number(v)).toLocaleString() : '—'; }
+
+        /* ═══════════════ Cascade filters ═══════════════ */
+        function cascadeFilters() {
+            const uni = $('filterUni').value;
+            const subset = uni ? allData.filter(r => r.university === uni) : allData;
+            const schools = [...new Set(subset.map(r => r.school).filter(Boolean))].sort();
+            resetSelect('filterSchool', 'All Schools', schools);
+            cascadeDegrees();
+        }
+
+        function cascadeDegrees() {
+            const uni = $('filterUni').value;
+            const school = $('filterSchool').value;
+            let subset = allData;
+            if (uni) subset = subset.filter(r => r.university === uni);
+            if (school) subset = subset.filter(r => r.school === school);
+            const degrees = [...new Set(subset.map(r => r.degree).filter(Boolean))].sort();
+            resetSelect('filterDegree', 'All Degrees', degrees);
+        }
+
+        /* ═══════════════ Filter listeners ═══════════════ */
+        $('filterUni').addEventListener('change', () => { cascadeFilters(); applyFilters(); });
+        $('filterSchool').addEventListener('change', () => { cascadeDegrees(); applyFilters(); });
+        $('filterYear').addEventListener('change', applyFilters);
+        $('filterDegree').addEventListener('change', applyFilters);
+        $('applyFilters').addEventListener('click', applyFilters);
+        $('salaryGroupBy').addEventListener('change', () => { renderSalaryTrend(); });
+
+        $('resetFilters').addEventListener('click', () => {
+            $('filterYear').value = '';
+            $('filterUni').value = '';
+            resetSelect('filterSchool', 'All Schools', allSchools);
+            resetSelect('filterDegree', 'All Degrees', allDegrees);
+            $('tableSearch').value = '';
+            $('salaryGroupBy').value = 'auto';
+            applyFilters();
+        });
+
+        /* ═══════════════ Apply filters ═══════════════ */
+        function applyFilters() {
+            const year   = $('filterYear').value;
+            const uni    = $('filterUni').value;
+            const school = $('filterSchool').value;
+            const degree = $('filterDegree').value;
+
+            currentData = allData.filter(r =>
+                (!year   || r.year == year) &&
+                (!uni    || r.university === uni) &&
+                (!school || r.school === school) &&
+                (!degree || r.degree === degree)
+            );
+
+            currentPage = 1;
+            updateActiveFilters();
+
+            try { updateSummary(); }       catch(e) { console.error('updateSummary error:', e); }
+            try { renderSalaryTrend(); }   catch(e) { console.error('renderSalaryTrend error:', e); }
+            try { renderEmpTrend(); }      catch(e) { console.error('renderEmpTrend error:', e); }
+            try { renderBarChart(); }      catch(e) { console.error('renderBarChart error:', e); }
+            try { renderEmpChart(); }      catch(e) { console.error('renderEmpChart error:', e); }
+            try { renderTable(); }         catch(e) { console.error('renderTable error:', e); }
+
+            // Sync URL
+            const p = new URLSearchParams();
+            if (uni)    p.set('university', uni);
+            if (year)   p.set('year', year);
+            if (school) p.set('school', school);
+            if (degree) p.set('degree', degree);
+            const s = p.toString();
+            history.replaceState(null, '', s ? '?' + s : window.location.pathname);
+        }
+
+        /* ═══════════════ Active filter pills ═══════════════ */
+        function updateActiveFilters() {
+            const pills = $('filterPills');
+            const wrap  = $('activeFilters');
+            pills.innerHTML = '';
+            const filters = [
+                { id: 'filterUni',    label: 'University' },
+                { id: 'filterSchool', label: 'School' },
+                { id: 'filterDegree', label: 'Degree' },
+                { id: 'filterYear',   label: 'Year' }
+            ];
+            let any = false;
+            filters.forEach(f => {
+                const val = $(f.id).value;
+                if (val) {
+                    any = true;
+                    const pill = document.createElement('span');
+                    pill.className = 'filter-pill';
+                    pill.innerHTML = `${f.label}: <strong>${val}</strong> <i class="fas fa-times"></i>`;
+                    pill.querySelector('i').addEventListener('click', () => {
+                        $(f.id).value = '';
+                        if (f.id === 'filterUni') cascadeFilters();
+                        else if (f.id === 'filterSchool') cascadeDegrees();
+                        applyFilters();
+                    });
+                    pills.appendChild(pill);
+                }
+            });
+            wrap.style.display = any ? 'flex' : 'none';
+        }
+
+        /* ═══════════════ Summary cards ═══════════════ */
         function updateSummary() {
             const unis = [...new Set(currentData.map(r => r.university))];
-            document.getElementById('summaryUniCount').textContent = unis.length;
-            document.getElementById('summaryPrograms').textContent = new Set(currentData.map(r => r.degree)).size;
+            $('summaryUniCount').textContent = unis.length;
+            $('summaryPrograms').textContent = new Set(currentData.map(r => r.degree)).size;
 
-            // Top median
-            let topMedianUni = '—', topMedianVal = 0;
+            let topMedianVal = 0;
             unis.forEach(u => {
                 const m = avg(currentData.filter(r => r.university === u), 'gross_monthly_median');
-                if (m && m > topMedianVal) { topMedianVal = m; topMedianUni = u; }
+                if (m && m > topMedianVal) topMedianVal = m;
             });
-            document.getElementById('summaryTopMedian').textContent = topMedianVal ? `$${Math.round(topMedianVal).toLocaleString()}` : '—';
+            $('summaryTopMedian').textContent = topMedianVal ? `$${Math.round(topMedianVal).toLocaleString()}` : '—';
 
-            // Top employment
-            let topEmpUni = '—', topEmpVal = 0;
+            let topEmpVal = 0;
             unis.forEach(u => {
                 const e = avg(currentData.filter(r => r.university === u), 'employment_rate_overall');
-                if (e && e > topEmpVal) { topEmpVal = e; topEmpUni = u; }
+                if (e && e > topEmpVal) topEmpVal = e;
             });
-            document.getElementById('summaryTopEmp').textContent = topEmpVal ? `${topEmpVal.toFixed(1)}%` : '—';
+            $('summaryTopEmp').textContent = topEmpVal ? `${topEmpVal.toFixed(1)}%` : '—';
         }
 
-        const colors = ['rgba(37,99,235,0.75)','rgba(255,0,110,0.75)','rgba(131,56,236,0.75)','rgba(251,86,7,0.75)','rgba(16,185,129,0.75)','rgba(245,158,11,0.75)'];
+        /* ═══════════════ Group key logic ═══════════════ */
+        function getGroupKey() {
+            const degree = $('filterDegree').value;
+            const school = $('filterSchool').value;
+            const uni    = $('filterUni').value;
+            if (degree) return 'university';
+            if (school) return 'degree';
+            if (uni)    return 'school';
+            return 'university';
+        }
 
-        let barChart = null;
+        function getSalaryGroupKey() {
+            const override = $('salaryGroupBy').value;
+            return (override && override !== 'auto') ? override : getGroupKey();
+        }
+
+        /* ═══════════════ Salary Trend Chart ═══════════════ */
+        function renderSalaryTrend() {
+            const canvas = $('salaryTrendChart');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            if (salaryTrendChart) salaryTrendChart.destroy();
+
+            const years    = [...new Set(currentData.map(r => r.year))].sort((a, b) => a - b);
+            const groupKey = getSalaryGroupKey();
+            const groups   = [...new Set(currentData.map(r => r[groupKey]).filter(Boolean))].sort();
+
+            const groupLabelEl = $('salaryGroupLabel');
+            if (groupLabelEl) groupLabelEl.textContent = groupKey.charAt(0).toUpperCase() + groupKey.slice(1);
+
+            let datasets;
+            if (groups.length <= 1) {
+                const gData = groups.length === 1 ? currentData.filter(r => r[groupKey] === groups[0]) : currentData;
+                datasets = [{
+                    label: groups[0] || 'All',
+                    data: years.map(y => {
+                        const vals = gData.filter(r => r.year === y && r.gross_monthly_median != null).map(r => r.gross_monthly_median);
+                        return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
+                    }),
+                    borderColor: '#2563eb', borderWidth: 3, fill: true,
+                    backgroundColor: 'rgba(37,99,235,0.1)', tension: 0.3,
+                    pointRadius: 5, pointHoverRadius: 8, pointBackgroundColor: '#2563eb', spanGaps: true
+                }];
+            } else {
+                datasets = groups.map((g, i) => {
+                    const gData = currentData.filter(r => r[groupKey] === g);
+                    return {
+                        label: g,
+                        data: years.map(y => {
+                            const vals = gData.filter(r => r.year === y && r.gross_monthly_median != null).map(r => r.gross_monthly_median);
+                            return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
+                        }),
+                        borderColor: borderColors[i % borderColors.length],
+                        backgroundColor: colors[i % colors.length],
+                        borderWidth: 3, fill: false, tension: 0.3,
+                        pointRadius: 4, pointHoverRadius: 7, spanGaps: true
+                    };
+                });
+            }
+
+            salaryTrendChart = new Chart(ctx, {
+                type: 'line',
+                data: { labels: years, datasets },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    animation: { duration: 600, easing: 'easeOutQuart' },
+                    plugins: {
+                        legend: { position: 'top', labels: { boxWidth: 14, usePointStyle: true, padding: 16 } },
+                        tooltip: {
+                            mode: 'index', intersect: false,
+                            backgroundColor: 'rgba(30,30,30,0.92)', cornerRadius: 8, padding: 12,
+                            callbacks: { label: c => c.parsed.y != null ? `${c.dataset.label}: $${Math.round(c.parsed.y).toLocaleString()}` : '' }
+                        }
+                    },
+                    scales: {
+                        y: { beginAtZero: false, title: { display: true, text: 'Median Monthly Gross Salary', font: { weight: '600' } }, ticks: { callback: v => '$' + v.toLocaleString() }, grid: { color: 'rgba(0,0,0,0.04)' } },
+                        x: { title: { display: true, text: 'Year', font: { weight: '600' } }, grid: { display: false } }
+                    },
+                    interaction: { mode: 'nearest', intersect: false },
+                    onClick: (event, elements) => {
+                        if (elements.length > 0) {
+                            const dsIndex = elements[0].datasetIndex;
+                            const label = event.chart.data.datasets[dsIndex]?.label;
+                            if (label && groupKey === 'university') {
+                                $('filterUni').value = label; cascadeFilters(); applyFilters();
+                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                            } else if (label && groupKey === 'school') {
+                                $('filterSchool').value = label; cascadeDegrees(); applyFilters();
+                            } else if (label && groupKey === 'degree') {
+                                $('filterDegree').value = label; applyFilters();
+                            }
+                        }
+                    },
+                    onHover: (event, elements) => { event.chart.canvas.style.cursor = elements.length > 0 ? 'pointer' : 'default'; }
+                }
+            });
+        }
+
+        /* ═══════════════ Employment Trend Chart ═══════════════ */
+        function renderEmpTrend() {
+            const ctx = $('empTrendChart').getContext('2d');
+            if (empTrendChart) empTrendChart.destroy();
+
+            const years    = [...new Set(currentData.map(r => r.year))].sort((a, b) => a - b);
+            const groupKey = getGroupKey();
+            const groups   = [...new Set(currentData.map(r => r[groupKey]).filter(Boolean))].sort();
+
+            const datasets = groups.map((g, i) => {
+                const gData = currentData.filter(r => r[groupKey] === g);
+                return {
+                    label: g,
+                    data: years.map(y => {
+                        const vals = gData.filter(r => r.year === y && r.employment_rate_overall != null).map(r => r.employment_rate_overall);
+                        return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
+                    }),
+                    borderColor: borderColors[i % borderColors.length],
+                    backgroundColor: colors[i % colors.length],
+                    borderWidth: 2.5, fill: false, tension: 0.35,
+                    pointRadius: 4, pointHoverRadius: 6, spanGaps: true
+                };
+            });
+
+            empTrendChart = new Chart(ctx, {
+                type: 'line',
+                data: { labels: years, datasets },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    animation: { duration: 600, easing: 'easeOutQuart' },
+                    plugins: {
+                        legend: { position: 'top', labels: { boxWidth: 14, usePointStyle: true } },
+                        tooltip: {
+                            mode: 'index', intersect: false,
+                            backgroundColor: 'rgba(30,30,30,0.92)', cornerRadius: 8, padding: 12,
+                            callbacks: { label: c => c.parsed.y != null ? `${c.dataset.label}: ${c.parsed.y.toFixed(1)}%` : '' }
+                        }
+                    },
+                    scales: {
+                        y: { beginAtZero: false, title: { display: true, text: 'Employment Rate (%)', font: { weight: '600' } }, ticks: { callback: v => v.toFixed(0) + '%' }, grid: { color: 'rgba(0,0,0,0.04)' } },
+                        x: { title: { display: true, text: 'Year', font: { weight: '600' } }, grid: { display: false } }
+                    },
+                    interaction: { mode: 'nearest', intersect: false }
+                }
+            });
+        }
+
+        /* ═══════════════ Bar Charts ═══════════════ */
         function renderBarChart() {
             const grouped = {};
             currentData.forEach(r => { if (!grouped[r.university]) grouped[r.university] = []; grouped[r.university].push(r.gross_monthly_median); });
-            const labels = Object.keys(grouped).sort();
-            const medians = labels.map(u => { const v = grouped[u].filter(x => x != null && !isNaN(x)); return v.length ? v.reduce((a,b)=>a+b,0)/v.length : 0; });
-            const ctx = document.getElementById('uniBarChart').getContext('2d');
+            const labels  = Object.keys(grouped).sort();
+            const medians = labels.map(u => { const v = grouped[u].filter(x => x != null && !isNaN(x)); return v.length ? v.reduce((a, b) => a + b, 0) / v.length : 0; });
+
+            const ctx = $('uniBarChart').getContext('2d');
             if (barChart) barChart.destroy();
             barChart = new Chart(ctx, {
                 type: 'bar',
-                data: { labels, datasets: [{ label: 'Avg Median Salary', data: medians, backgroundColor: labels.map((_,i) => colors[i % colors.length]), borderRadius: 6, borderSkipped: false }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => `$${Math.round(c.parsed.y).toLocaleString()}` } } }, scales: { y: { beginAtZero: false, title: { display: true, text: 'Median Salary ($)' }, ticks: { callback: v => '$'+v.toLocaleString() } } } }
+                data: { labels, datasets: [{ label: 'Avg Median Salary', data: medians, backgroundColor: labels.map((_, i) => colors[i % colors.length]), borderRadius: 8, borderSkipped: false, barPercentage: 0.65 }] },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    animation: { duration: 600, easing: 'easeOutQuart' },
+                    plugins: { legend: { display: false }, tooltip: { backgroundColor: 'rgba(30,30,30,0.92)', cornerRadius: 8, padding: 12, callbacks: { label: c => ` Median: $${Math.round(c.parsed.y).toLocaleString()}` } } },
+                    scales: { y: { beginAtZero: false, title: { display: true, text: 'Median Salary (SGD)', font: { weight: '600' } }, ticks: { callback: v => '$' + v.toLocaleString() }, grid: { color: 'rgba(0,0,0,0.04)' } }, x: { grid: { display: false } } }
+                }
             });
         }
 
-        let empChart = null;
         function renderEmpChart() {
             const grouped = {};
             currentData.forEach(r => { if (!grouped[r.university]) grouped[r.university] = []; if (r.employment_rate_overall != null) grouped[r.university].push(r.employment_rate_overall); });
             const labels = Object.keys(grouped).sort();
-            const rates = labels.map(u => { const v = grouped[u]; return v.length ? v.reduce((a,b)=>a+b,0)/v.length : 0; });
-            const ctx = document.getElementById('uniEmpChart').getContext('2d');
+            const rates  = labels.map(u => { const v = grouped[u]; return v.length ? v.reduce((a, b) => a + b, 0) / v.length : 0; });
+
+            const ctx = $('uniEmpChart').getContext('2d');
             if (empChart) empChart.destroy();
             empChart = new Chart(ctx, {
                 type: 'bar',
-                data: { labels, datasets: [{ label: 'Avg Employment Rate', data: rates, backgroundColor: labels.map((_,i) => colors[i % colors.length]), borderRadius: 6, borderSkipped: false }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.parsed.y.toFixed(1) + '%' } } }, scales: { y: { beginAtZero: false, title: { display: true, text: 'Employment Rate (%)' }, ticks: { callback: v => v.toFixed(0)+'%' } } } }
+                data: { labels, datasets: [{ label: 'Avg Employment Rate', data: rates, backgroundColor: labels.map((_, i) => colors[i % colors.length]), borderRadius: 8, borderSkipped: false, barPercentage: 0.65 }] },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    animation: { duration: 600, easing: 'easeOutQuart' },
+                    plugins: { legend: { display: false }, tooltip: { backgroundColor: 'rgba(30,30,30,0.92)', cornerRadius: 8, padding: 12, callbacks: { label: c => ` Rate: ${c.parsed.y.toFixed(1)}%` } } },
+                    scales: { y: { beginAtZero: false, title: { display: true, text: 'Employment Rate (%)', font: { weight: '600' } }, ticks: { callback: v => v.toFixed(0) + '%' }, grid: { color: 'rgba(0,0,0,0.04)' } }, x: { grid: { display: false } } }
+                }
             });
         }
 
-        function renderTable() {
-            const search = document.getElementById('tableSearch').value.toLowerCase();
-            let filtered = currentData.filter(r =>
-                !search || (r.degree||'').toLowerCase().includes(search) || (r.university||'').toLowerCase().includes(search) || (r.school||'').toLowerCase().includes(search)
+        /* ═══════════════ Table with pagination ═══════════════ */
+        function getFilteredRows() {
+            const search = $('tableSearch').value.toLowerCase();
+            let rows = currentData.filter(r =>
+                !search ||
+                (r.degree && r.degree.toLowerCase().includes(search)) ||
+                (r.university && r.university.toLowerCase().includes(search)) ||
+                (r.school && r.school.toLowerCase().includes(search))
             );
             if (sortCol) {
-                filtered.sort((a,b) => { let va=a[sortCol], vb=b[sortCol]; if (typeof va==='number' && typeof vb==='number') return sortAsc?va-vb:vb-va; va=(va||'').toString(); vb=(vb||'').toString(); return sortAsc?va.localeCompare(vb):vb.localeCompare(va); });
+                rows = [...rows].sort((a, b) => {
+                    let va = a[sortCol], vb = b[sortCol];
+                    if (typeof va === 'number' && typeof vb === 'number') return sortAsc ? va - vb : vb - va;
+                    va = (va || '').toString(); vb = (vb || '').toString();
+                    return sortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+                });
             }
-            const tbody = document.getElementById('uniTableBody');
-            tbody.innerHTML = filtered.map(r => `<tr>
-                <td>${r.year??''}</td><td>${r.university??''}</td><td>${r.school??''}</td><td>${r.degree??''}</td>
-                <td>${fmt(r.gross_monthly_median)}</td><td>${fmt(r.gross_monthly_mean)}</td>
-                <td>${r.employment_rate_overall!=null ? Number(r.employment_rate_overall).toFixed(1)+'%' : '—'}</td>
-            </tr>`).join('');
-            document.getElementById('tableCount').textContent = `${filtered.length} records`;
+            return rows;
         }
 
-        function fmt(v) { return v!=null && !isNaN(v) ? '$'+Math.round(Number(v)).toLocaleString() : '—'; }
+        function renderTable() {
+            const filtered   = getFilteredRows();
+            const totalRows  = filtered.length;
+            const totalPages = Math.max(1, Math.ceil(totalRows / pageSize));
+            if (currentPage > totalPages) currentPage = totalPages;
 
-        document.getElementById('tableSearch').addEventListener('input', () => renderTable());
+            const start = (currentPage - 1) * pageSize;
+            const page  = filtered.slice(start, start + pageSize);
+
+            const tbody = $('uniTableBody');
+            if (!page.length) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--gray);">No records found</td></tr>';
+            } else {
+                tbody.innerHTML = page.map(r => `<tr>
+                    <td>${r.year ?? ''}</td><td>${r.university ?? ''}</td><td>${r.school ?? ''}</td><td>${r.degree ?? ''}</td>
+                    <td>${fmt(r.gross_monthly_median)}</td><td>${fmt(r.gross_monthly_mean)}</td>
+                    <td>${r.employment_rate_overall != null ? Number(r.employment_rate_overall).toFixed(1) + '%' : '—'}</td>
+                </tr>`).join('');
+            }
+
+            $('tableCount').textContent = `Showing ${Math.min(start + 1, totalRows)}–${Math.min(start + pageSize, totalRows)} of ${totalRows} records`;
+            renderPagination(totalPages);
+        }
+
+        function renderPagination(totalPages) {
+            const wrap = $('pagination');
+            wrap.innerHTML = '';
+            if (totalPages <= 1) return;
+
+            const addBtn = (label, page, disabled, active) => {
+                const btn = document.createElement('button');
+                btn.className = 'page-btn' + (active ? ' active' : '');
+                btn.textContent = label;
+                btn.disabled = disabled;
+                btn.addEventListener('click', () => { currentPage = page; renderTable(); });
+                wrap.appendChild(btn);
+            };
+
+            addBtn('«', 1, currentPage === 1, false);
+            addBtn('‹', currentPage - 1, currentPage === 1, false);
+
+            let startP = Math.max(1, currentPage - 2);
+            let endP   = Math.min(totalPages, currentPage + 2);
+            if (startP > 1) { addBtn('1', 1, false, currentPage === 1); if (startP > 2) { const sp = document.createElement('span'); sp.textContent = '…'; sp.className = 'page-ellipsis'; wrap.appendChild(sp); } }
+            for (let p = startP; p <= endP; p++) addBtn(p, p, false, p === currentPage);
+            if (endP < totalPages) { if (endP < totalPages - 1) { const sp = document.createElement('span'); sp.textContent = '…'; sp.className = 'page-ellipsis'; wrap.appendChild(sp); } addBtn(totalPages, totalPages, false, currentPage === totalPages); }
+
+            addBtn('›', currentPage + 1, currentPage === totalPages, false);
+            addBtn('»', totalPages, currentPage === totalPages, false);
+        }
+
+        $('tableSearch').addEventListener('input', () => { currentPage = 1; renderTable(); });
+        $('tablePageSize').addEventListener('change', e => { pageSize = parseInt(e.target.value); currentPage = 1; renderTable(); });
+
+        // Column sort with sort indicator icons
         document.querySelectorAll('#uniTable th[data-sort]').forEach(th => {
             th.style.cursor = 'pointer';
-            th.addEventListener('click', () => { const col = th.dataset.sort; if (sortCol===col) sortAsc=!sortAsc; else { sortCol=col; sortAsc=true; } renderTable(); });
+            th.addEventListener('click', () => {
+                const col = th.dataset.sort;
+                if (sortCol === col) sortAsc = !sortAsc; else { sortCol = col; sortAsc = true; }
+
+                document.querySelectorAll('#uniTable th[data-sort] i').forEach(icon => {
+                    icon.className = 'fas fa-sort'; icon.style.opacity = '0.5';
+                });
+                const icon = th.querySelector('i');
+                icon.className = sortAsc ? 'fas fa-sort-up' : 'fas fa-sort-down';
+                icon.style.opacity = '1';
+
+                renderTable();
+            });
         });
     });
     </script>
@@ -250,11 +664,19 @@
     .details-header h1 { margin-bottom: 0.5rem; }
     .details-header p { color: var(--gray); margin-bottom: 0; }
 
-    .filters-bar { display: flex; align-items: flex-end; gap: 1rem; flex-wrap: wrap; background: white; padding: 1.25rem 1.5rem; border-radius: var(--border-radius); box-shadow: var(--shadow); margin-bottom: 2rem; }
-    .filter-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 160px; }
+    .filters-bar { display: flex; align-items: flex-end; gap: 1rem; flex-wrap: wrap; background: white; padding: 1.25rem 1.5rem; border-radius: var(--border-radius); box-shadow: var(--shadow); margin-bottom: 1rem; }
+    .filter-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 140px; }
     .filter-group label { font-size: 0.8rem; font-weight: 600; color: var(--gray); text-transform: uppercase; letter-spacing: 0.5px; }
     .filter-group select { padding: 0.6rem 0.75rem; border: 1px solid var(--gray-light); border-radius: var(--border-radius); font-size: 0.95rem; transition: var(--transition); }
     .filter-group select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.15); }
+
+    /* Active Filters */
+    .active-filters { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1.5rem; padding: 0; }
+    .active-filters-label { font-size: 0.85rem; font-weight: 600; color: var(--gray); white-space: nowrap; }
+    .filter-pills { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .filter-pill { display: inline-flex; align-items: center; gap: 6px; background: rgba(37,99,235,0.1); color: var(--primary); padding: 4px 12px; border-radius: 20px; font-size: 0.82rem; font-weight: 500; }
+    .filter-pill i { cursor: pointer; opacity: 0.7; font-size: 0.7rem; transition: opacity 0.2s; }
+    .filter-pill i:hover { opacity: 1; }
 
     .summary-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem; margin-bottom: 2rem; }
     .summary-card { display: flex; align-items: center; gap: 1rem; background: white; padding: 1.25rem 1.5rem; border-radius: var(--border-radius); box-shadow: var(--shadow); transition: transform 0.3s ease, box-shadow 0.3s ease; }
@@ -264,16 +686,32 @@
     .summary-label { font-size: 0.8rem; color: var(--gray); font-weight: 500; }
 
     .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
-    .details-chart-card { background: white; border-radius: var(--border-radius); box-shadow: var(--shadow); padding: 1.75rem; }
-    .details-chart-card h3 { margin-bottom: 1rem; }
+    .details-chart-card { background: white; border-radius: var(--border-radius); box-shadow: var(--shadow); padding: 1.75rem; margin-bottom: 2rem; }
+    .details-chart-card h3 { margin-bottom: 0.25rem; }
     .details-chart-wrapper { position: relative; height: 350px; }
+
+    .chart-loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 1rem; color: #888; z-index: 2; background: rgba(255,255,255,0.85); border-radius: 8px; }
+
+    .chart-card-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem; }
+    .chart-subtitle { color: var(--gray); font-size: 0.9rem; margin: 0; }
+    .chart-card-controls { display: flex; align-items: center; gap: 8px; }
+    .chart-card-controls label { font-size: 0.8rem; font-weight: 600; color: var(--gray); text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+    .chart-card-controls select { padding: 0.5rem 0.7rem; border: 1px solid var(--gray-light); border-radius: var(--border-radius); font-size: 0.9rem; transition: var(--transition); background: white; }
+    .chart-card-controls select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.15); }
+    .chart-click-hint { text-align: center; color: var(--primary); font-size: 0.85em; font-weight: 500; margin-top: 10px; opacity: 0.7; transition: opacity 0.3s; }
+    .chart-click-hint:hover { opacity: 1; }
+    .chart-click-hint i { margin-right: 4px; }
+    .chart-card-footer { text-align: center; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--gray-light); color: var(--gray); font-size: 0.85rem; }
+    .chart-card-footer p { margin: 0; }
 
     .details-table-card { background: white; border-radius: var(--border-radius); box-shadow: var(--shadow); padding: 1.75rem; }
     .table-header-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem; }
+    .table-controls { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
     .table-search { position: relative; }
     .table-search i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--gray); font-size: 0.85rem; }
-    .table-search input { padding: 0.6rem 0.75rem 0.6rem 2.2rem; border: 1px solid var(--gray-light); border-radius: var(--border-radius); font-size: 0.95rem; width: 250px; transition: var(--transition); }
+    .table-search input { padding: 0.6rem 0.75rem 0.6rem 2.2rem; border: 1px solid var(--gray-light); border-radius: var(--border-radius); font-size: 0.95rem; width: 220px; transition: var(--transition); }
     .table-search input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.15); }
+    .page-size-select { padding: 0.5rem 0.6rem; border: 1px solid var(--gray-light); border-radius: var(--border-radius); font-size: 0.85rem; }
     .table-responsive { overflow-x: auto; }
 
     #uniTable { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
@@ -282,7 +720,17 @@
     #uniTable td { padding: 0.7rem 0.6rem; border-bottom: 1px solid var(--gray-light); color: var(--secondary); }
     #uniTable tbody tr { transition: background-color 0.2s; }
     #uniTable tbody tr:hover { background-color: rgba(37,99,235,0.04); }
-    .table-footer { margin-top: 0.75rem; text-align: right; font-size: 0.85rem; color: var(--gray); }
+
+    .table-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 0.75rem; flex-wrap: wrap; gap: 0.75rem; }
+    #tableCount { font-size: 0.85rem; color: var(--gray); }
+
+    /* Pagination */
+    .pagination { display: flex; gap: 4px; align-items: center; }
+    .page-btn { min-width: 34px; height: 34px; padding: 0 8px; border: 1px solid var(--gray-light); background: white; border-radius: 6px; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; }
+    .page-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+    .page-btn:hover:not(.active):not(:disabled) { background: var(--light); }
+    .page-btn:disabled { opacity: 0.4; cursor: default; }
+    .page-ellipsis { padding: 0 4px; color: var(--gray); font-size: 0.85rem; }
 
     @media (max-width: 768px) {
         .filters-bar { flex-direction: column; align-items: stretch; }

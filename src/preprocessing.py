@@ -1,17 +1,19 @@
 import pandas as pd
 import psycopg2
+import os
 import re
 
 # =========================
 # DATABASE CONFIG (LOCAL)
 # =========================
-DB_CONFIG = {
-    "host": "localhost",
-    "port": 5432,
-    "dbname": "graduate_employment",
-    "user": "postgres",
-    "password": "admin"
-}
+def get_connection():
+    return psycopg2.connect(
+        host=os.environ.get("DB_HOST", "localhost"),
+        port=int(os.environ.get("DB_PORT", 5433)),
+        dbname=os.environ.get("DB_NAME", "graduate_employment"),
+        user=os.environ.get("DB_USER", "postgres"),
+        password=os.environ.get("DB_PASSWORD", "admin"),
+    )
 
 CSV_PATH = "GraduateEmploymentSurveyNTUNUSSITSMUSUSSSUTD.csv"
 

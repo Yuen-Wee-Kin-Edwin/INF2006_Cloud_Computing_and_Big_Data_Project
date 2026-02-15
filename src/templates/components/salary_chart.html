@@ -1,7 +1,7 @@
 <div class="salary-chart-container">
     <div class="chart-header">
         <h3>Salary Trends Over Years</h3>
-        <p>Monthly gross salary statistics (in currency units)</p>
+        <p>Monthly gross salary statistics (SGD)</p>
     </div>
     
     <div class="chart-controls">
@@ -21,6 +21,9 @@
     </div>
     
     <div class="chart-wrapper">
+        <div id="salaryChartLoading" class="chart-loading">
+            <i class="fas fa-spinner fa-spin"></i> Loading salary data…
+        </div>
         <canvas id="salaryChart"></canvas>
     </div>
 
@@ -131,6 +134,19 @@
     position: relative;
     height: 400px;
     margin: 20px 0;
+}
+
+.chart-loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    color: #888;
+    z-index: 2;
+    background: rgba(255,255,255,0.8);
+    border-radius: 8px;
 }
 
 .chart-footer {

@@ -123,9 +123,11 @@
 
         const res = await fetch('/api/employment-details');
         const json = await res.json();
-        allData = json.data;
-        populateSelect('filterYear', json.years);
-        populateSelect('filterUni', json.universities);
+        allData = json.data || [];
+        const years = json.years || [...new Set(allData.map(r => r.year).filter(Boolean))].sort();
+        const universities = json.universities || [...new Set(allData.map(r => r.university).filter(Boolean))].sort();
+        populateSelect('filterYear', years);
+        populateSelect('filterUni', universities);
 
         if (initialUni) document.getElementById('filterUni').value = initialUni;
         if (initialYear) document.getElementById('filterYear').value = initialYear;
@@ -149,6 +151,8 @@
         }
 
         document.getElementById('applyFilters').addEventListener('click', applyFilters);
+        document.getElementById('filterYear').addEventListener('change', applyFilters);
+        document.getElementById('filterUni').addEventListener('change', applyFilters);
         document.getElementById('resetFilters').addEventListener('click', () => {
             document.getElementById('filterYear').value = '';
             document.getElementById('filterUni').value = '';
